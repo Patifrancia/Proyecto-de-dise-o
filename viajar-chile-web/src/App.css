@@ -1,42 +1,64 @@
+/* Reset general */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f8f9fa;
+  color: #222;
+}
+
+/* Contenedor principal para centrar todo */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* ✅ centra todo horizontalmente */
+  width: 100%;
+}
+
+/* 🏞️ Banner */
+.banner {
+  background: linear-gradient(135deg, #0099cc, #00b894);
+  color: white;
   text-align: center;
+  padding: 3rem 1rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  max-width: 900px;
+  width: 100%;           /* ✅ ocupa todo el ancho hasta 900px */
+  border-radius: 8px;
+  margin-top: 2rem;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.banner h1 {
+  margin: 0;
+  font-size: 2.5rem;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* 📜 Contenido */
+.content {
+  max-width: 900px;
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 0 1rem 2rem;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.section {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
-.card {
-  padding: 2em;
+/* ⚓ Footer */
+.footer {
+  background: #333;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.9rem;
+  width: 100%;
+  max-width: 900px;
+  border-radius: 0 0 8px 8px;
+  margin-bottom: 2rem;
 }
 
-.read-the-docs {
-  color: #888;
-}
