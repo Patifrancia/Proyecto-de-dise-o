@@ -1,96 +1,107 @@
-import React from "react";
-
-// Home sencillo sin dependencias externas (solo Tailwind opcional)
-// Colócalo como src/paginas/home.jsx (o ajusta la ruta según tu estructura)
-// y enrutalo desde App.jsx o main.jsx.
-
+import React, { useState, useEffect } from "react";
+console.log("Cargando nuevo Home RutaCL");
 export default function Home() {
+  const images = [
+    "https://plus.unsplash.com/premium_photo-1697729940854-0f73aadaff88?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=872", // Torres del Paine
+    "https://images.unsplash.com/photo-1494783435443-c15feee0a80a?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=872", // Desierto de Atacama
+    "https://images.unsplash.com/photo-1617173205830-95d15d469996?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=871", // Valparaíso
+    "https://images.unsplash.com/photo-1724250385111-3e06c1429b29?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=870", // Lagos del Sur
+  ];
+
+ const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [images.length]);
+
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
-      {/* Navbar */}
-      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur border-b">
-        <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="inline-block h-8 w-8 rounded-xl bg-gray-900" />
-            <h1 className="text-lg font-semibold tracking-tight">Viajar Chile</h1>
+    <div className="font-sans text-gray-900 overflow-x-hidden">
+      {/* ===== HERO CON CARRUSEL ===== */}
+      <div className="relative w-screen h-[90vh] overflow-hidden">
+        {images.map((src, index) => (
+          <img
+            key={index}
+            src={src}
+            alt={`Slide ${index}`}
+            className={`absolute top-0 left-0 h-full w-screen object-cover transition-opacity duration-1000 ${
+              index === currentIndex ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        ))}
+
+        {/* Capa oscura */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
+
+        {/* Logo superior */}
+        <div className="absolute top-6 left-6 flex items-center gap-2 text-white">
+          <div className="h-8 w-8 rounded-xl bg-emerald-500/80"></div>
+          <span className="text-lg font-semibold tracking-tight">RutaCL</span>
+        </div>
+
+        {/* Texto principal */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-6">
+          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight drop-shadow-xl">
+            Ruta<span className="text-emerald-400">CL</span>
+          </h1>
+          <p className="mt-2 text-lg md:text-xl text-gray-200 opacity-90">
+            Explora Chile a tu manera 🇨🇱
+          </p>
+
+          {/* Buscador */}
+          <div className="mt-8 flex w-full max-w-md items-center rounded-2xl bg-white/90 p-1 shadow-lg backdrop-blur-sm">
+            <input
+              type="text"
+              placeholder="¿A dónde quieres ir?"
+              className="flex-1 px-4 py-2 rounded-l-2xl bg-transparent text-gray-900 focus:outline-none"
+            />
+            <button className="rounded-2xl bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700 transition">
+              Buscar
+            </button>
           </div>
-          <nav className="hidden sm:flex items-center gap-5 text-sm">
-            <a className="hover:opacity-80" href="#destinos">Destinos</a>
-            <a className="hover:opacity-80" href="#rutas">Rutas</a>
-            <a className="hover:opacity-80" href="#wishlist">Wishlist</a>
-          </nav>
-          <button className="sm:hidden rounded-xl border px-3 py-1.5 text-sm">Menú</button>
         </div>
-      </header>
-
-      {/* Hero */}
-      <section className="mx-auto max-w-6xl px-4 py-10">
-        <div className="grid gap-6 md:grid-cols-2 items-center">
-          <div>
-            <h2 className="text-3xl md:text-4xl font-bold leading-tight">
-              Explora Chile con un plan simple
-            </h2>
-            <p className="mt-3 text-gray-600">
-              Arma tu ruta, guarda tus lugares y calcula costos básicos del viaje.
-            </p>
-
-            {/* Buscador simple */}
-            <div className="mt-6 flex gap-2">
-              <input
-                type="text"
-                placeholder="Buscar destino (ej: Valdivia)"
-                className="w-full rounded-xl border px-4 py-2 focus:outline-none focus:ring"
-              />
-              <button className="rounded-xl bg-gray-900 px-4 py-2 text-white hover:opacity-90">
-                Buscar
-              </button>
-            </div>
-
-            {/* Acciones rápidas */}
-            <div className="mt-4 flex flex-wrap gap-2 text-sm">
-              <button className="rounded-full border px-3 py-1 hover:bg-gray-100">Cerca de mí</button>
-              <button className="rounded-full border px-3 py-1 hover:bg-gray-100">Naturaleza</button>
-              <button className="rounded-full border px-3 py-1 hover:bg-gray-100">Playas</button>
-              <button className="rounded-full border px-3 py-1 hover:bg-gray-100">Patagonia</button>
-            </div>
-          </div>
-
-          {/* Imagen/placeholder */}
-          <div className="aspect-video rounded-2xl bg-gradient-to-br from-gray-200 to-gray-300" />
-        </div>
-      </section>
-
-      {/* Tarjetas simples */}
-      <section id="destinos" className="mx-auto max-w-6xl px-4 pb-12">
-        <h3 className="text-xl font-semibold mb-4">Empieza por algo rápido</h3>
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card title="Armar Ruta" desc="Agrega paradas y ordena el recorrido." actionText="Crear" />
-          <Card title="Wishlist" desc="Guarda lugares para otro día." actionText="Abrir" />
-          <Card title="Costos" desc="Estimación básica: peajes, bencina o bus." actionText="Calcular" />
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t py-6">
-        <div className="mx-auto max-w-6xl px-4 text-sm text-gray-600 flex items-center justify-between">
-          <p>© {new Date().getFullYear()} Viajar Chile</p>
-          <a className="hover:opacity-80" href="#">Contacto</a>
-        </div>
-      </footer>
-    </div>
-  );
-}
-
-function Card({ title, desc, actionText }) {
-  return (
-    <div className="rounded-2xl border bg-white p-4 shadow-sm">
-      <h4 className="font-medium">{title}</h4>
-      <p className="mt-1 text-sm text-gray-600">{desc}</p>
-      <div className="mt-3">
-        <button className="rounded-xl bg-gray-900 px-3 py-2 text-white text-sm hover:opacity-90">
-          {actionText}
-        </button>
       </div>
+
+      {/* ===== SECCIÓN EXPLICATIVA ===== */}
+      <section className="bg-white py-16 text-gray-800">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            ¿Qué puedes hacer en <span className="text-emerald-600">RutaCL</span>?
+          </h2>
+          <p className="text-gray-600 max-w-2xl mx-auto mb-12">
+            RutaCL te ayuda a organizar tus aventuras por Chile de forma simple y visual. 
+            Diseñada para viajeros que quieren explorar sin perder tiempo en planillas ni mapas complicados.
+          </p>
+
+          <div className="grid gap-8 md:grid-cols-3">
+            <div className="rounded-2xl border bg-gray-50 p-6 shadow-sm hover:shadow-md transition">
+              <div className="text-4xl mb-4">🗺️</div>
+              <h3 className="text-xl font-semibold mb-2">Planifica tus rutas</h3>
+              <p className="text-sm text-gray-700">
+                Agrega destinos, ajusta el orden y visualiza el recorrido completo en el mapa.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border bg-gray-50 p-6 shadow-sm hover:shadow-md transition">
+              <div className="text-4xl mb-4">❤️</div>
+              <h3 className="text-xl font-semibold mb-2">Guarda tus lugares</h3>
+              <p className="text-sm text-gray-700">
+                Crea una lista de tus destinos favoritos o pendientes, y retómalos cuando quieras.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border bg-gray-50 p-6 shadow-sm hover:shadow-md transition">
+              <div className="text-4xl mb-4">💰</div>
+              <h3 className="text-xl font-semibold mb-2">Calcula los costos</h3>
+              <p className="text-sm text-gray-700">
+                Estima peajes, bencina o transporte público para organizar tu presupuesto fácilmente.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
