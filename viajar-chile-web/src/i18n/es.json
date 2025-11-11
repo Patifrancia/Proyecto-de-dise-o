@@ -1,0 +1,15 @@
+{
+  "brand": "RutaCL",
+  "tagline": "Explora Chile a tu manera",
+  "searchPlaceholder": "¿A dónde quieres ir?",
+  "search": "Buscar",
+  "login": "Iniciar sesión",
+  "logout": "Cerrar sesión",
+  "whatYouCanDo": "¿Qué puedes hacer en {{brand}}?",
+  "plan": "Planifica tus rutas",
+  "save": "Guarda tus lugares",
+  "costs": "Calcula los costos",
+  "plan_desc": "Agrega destinos, ajusta el orden y visualiza el recorrido completo.",
+  "save_desc": "Crea favoritos o pendientes y retómalos cuando quieras.",
+  "costs_desc": "Estima peajes, combustible y transporte público."
+}

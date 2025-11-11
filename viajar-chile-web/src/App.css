@@ -7,15 +7,21 @@ body, html {
   color: #222;
 }
 
-/* Contenedor principal para centrar todo */
+/* ⬇️ Cambiar esto: elimina el centrado forzado del root */
 #root {
-  display: flex;
+  /* display: flex;
   flex-direction: column;
-  align-items: center;   /* ✅ centra todo horizontalmente */
+  align-items: center; */   /* ❌ esto encoge el contenido */
+  display: block;            /* ✅ deja que los hijos ocupen todo el ancho */
   width: 100%;
 }
 
-/* 🏞️ Banner */
+/* Anti scroll horizontal por si algún hijo se pasa de ancho */
+html, body {
+  overflow-x: hidden;
+}
+
+/* 🏞️ Banner (no usado por el Home actual, lo dejo igual) */
 .banner {
   background: linear-gradient(135deg, #0099cc, #00b894);
   color: white;
@@ -23,42 +29,13 @@ body, html {
   padding: 3rem 1rem;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   max-width: 900px;
-  width: 100%;           /* ✅ ocupa todo el ancho hasta 900px */
+  width: 100%;
   border-radius: 8px;
   margin-top: 2rem;
 }
 
-.banner h1 {
-  margin: 0;
-  font-size: 2.5rem;
-}
+.banner h1 { margin: 0; font-size: 2.5rem; }
 
-/* 📜 Contenido */
-.content {
-  max-width: 900px;
-  width: 100%;
-  margin-top: 1.5rem;
-  padding: 0 1rem 2rem;
-}
-
-.section {
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-}
-
-/* ⚓ Footer */
-.footer {
-  background: #333;
-  color: white;
-  text-align: center;
-  padding: 1rem;
-  font-size: 0.9rem;
-  width: 100%;
-  max-width: 900px;
-  border-radius: 0 0 8px 8px;
-  margin-bottom: 2rem;
-}
-
+.content { max-width: 900px; width: 100%; margin-top: 1.5rem; padding: 0 1rem 2rem; }
+.section { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+.footer { background: #333; color: white; text-align: center; padding: 1rem; font-size: 0.9rem; width: 100%; max-width: 900px; border-radius: 0 0 8px 8px; margin-bottom: 2rem; }

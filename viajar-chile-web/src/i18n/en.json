@@ -1,0 +1,15 @@
+{
+  "brand": "RutaCL",
+  "tagline": "Explore Chile your way",
+  "searchPlaceholder": "Where do you want to go?",
+  "search": "Search",
+  "login": "Sign in",
+  "logout": "Sign out",
+  "whatYouCanDo": "What can you do in {{brand}}?",
+  "plan": "Plan your routes",
+  "save": "Save your places",
+  "costs": "Calculate costs",
+  "plan_desc": "Add stops, reorder and visualize the full trip.",
+  "save_desc": "Create favorites or to-do places and revisit them anytime.",
+  "costs_desc": "Estimate tolls, fuel and public transport."
+}
