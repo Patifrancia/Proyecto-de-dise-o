@@ -1,48 +1,151 @@
 import { useState } from "react";
+import { Calculator, Plus, Trash2 } from "lucide-react";
 
 export default function Costos() {
   const [km, setKm] = useState("");
   const [rend, setRend] = useState("12"); // km/l
   const [precio, setPrecio] = useState("1400"); // $/l
-  const [peajes, setPeajes] = useState("0");
+  const [nuevoPeaje, setNuevoPeaje] = useState("");
+  const [peajes, setPeajes] = useState([]);
 
+  // Calcular litros y totales
   const litros = km && rend ? Number(km) / Number(rend) : 0;
   const combustible = litros * Number(precio);
-  const total = combustible + Number(peajes || 0);
+  const totalPeajes = peajes.reduce((acc, p) => acc + p, 0);
+  const total = combustible + totalPeajes;
+
+  // Funciones
+  const agregarPeaje = () => {
+    const valor = Number(nuevoPeaje);
+    if (!valor || valor <= 0) return;
+    setPeajes([...peajes, valor]);
+    setNuevoPeaje("");
+  };
+
+  const eliminarPeaje = (i) => {
+    setPeajes(peajes.filter((_, idx) => idx !== i));
+  };
 
   return (
-    <div className="mx-auto w-full max-w-screen-sm px-4 py-8">
-      <h1 className="text-2xl font-bold">Calcula los costos</h1>
-      <p className="text-gray-600 mb-6">Estima combustible y peajes de tu viaje.</p>
-
-      <div className="rounded-xl border bg-white p-5 shadow-sm space-y-4">
-        <div>
-          <label className="block text-sm font-medium">Distancia (km)</label>
-          <input value={km} onChange={e => setKm(e.target.value)} type="number"
-                 className="mt-1 w-full rounded-lg border px-3 py-2" />
-        </div>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium">Rendimiento (km/l)</label>
-            <input value={rend} onChange={e => setRend(e.target.value)} type="number"
-                   className="mt-1 w-full rounded-lg border px-3 py-2" />
+    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-white flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100 p-8 text-gray-800">
+        {/* Encabezado */}
+        <div className="flex flex-col items-center text-center mb-8">
+          <div className="bg-emerald-100 text-emerald-700 p-3 rounded-full mb-3">
+            <Calculator className="w-6 h-6" />
           </div>
-          <div>
-            <label className="block text-sm font-medium">Precio bencina ($/l)</label>
-            <input value={precio} onChange={e => setPrecio(e.target.value)} type="number"
-                   className="mt-1 w-full rounded-lg border px-3 py-2" />
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium">Peajes ($)</label>
-          <input value={peajes} onChange={e => setPeajes(e.target.value)} type="number"
-                 className="mt-1 w-full rounded-lg border px-3 py-2" />
+          <h1 className="text-3xl font-extrabold tracking-tight">
+            Calcula tus costos
+          </h1>
+          <p className="text-gray-600 mt-2 text-sm sm:text-base">
+            Estima combustible y peajes de tu viaje 🚗
+          </p>
         </div>
 
-        <div className="mt-2 rounded-lg bg-gray-50 p-4">
-          <p className="text-sm">Litros estimados: <b>{litros.toFixed(1)} L</b></p>
-          <p className="text-sm">Combustible: <b>${Math.round(combustible).toLocaleString()}</b></p>
-          <p className="text-lg font-semibold">Total estimado: <b>${Math.round(total).toLocaleString()}</b></p>
+        {/* Formulario */}
+        <form className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Distancia total (km)
+            </label>
+            <input
+              value={km}
+              onChange={(e) => setKm(e.target.value)}
+              type="number"
+              className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-2 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition"
+              placeholder="Ej: 350"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Rendimiento (km/l)
+              </label>
+              <input
+                value={rend}
+                onChange={(e) => setRend(e.target.value)}
+                type="number"
+                className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-2 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Precio combustible ($/l)
+              </label>
+              <input
+                value={precio}
+                onChange={(e) => setPrecio(e.target.value)}
+                type="number"
+                className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-2 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition"
+              />
+            </div>
+          </div>
+
+          {/* Peajes dinámicos */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Peajes
+            </label>
+
+            {/* Input + botón agregar */}
+            <div className="flex gap-2 mb-3">
+              <input
+                type="number"
+                value={nuevoPeaje}
+                onChange={(e) => setNuevoPeaje(e.target.value)}
+                placeholder="Monto del peaje"
+                className="flex-1 rounded-xl border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition"
+              />
+              <button
+                type="button"
+                onClick={agregarPeaje}
+                className="rounded-xl bg-emerald-600 text-white px-3 py-2 hover:bg-emerald-700 transition flex items-center justify-center"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Lista de peajes agregados */}
+            {peajes.length > 0 && (
+              <ul className="space-y-2">
+                {peajes.map((p, i) => (
+                  <li
+                    key={i}
+                    className="flex justify-between items-center bg-gray-50 border rounded-xl px-3 py-2 text-sm"
+                  >
+                    <span>${p.toLocaleString("es-CL")}</span>
+                    <button
+                      onClick={() => eliminarPeaje(i)}
+                      className="text-red-500 hover:text-red-700 transition"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </form>
+
+        {/* Resultados */}
+        <div className="mt-8 rounded-2xl bg-emerald-50 p-5 border border-emerald-100 text-gray-800">
+          <p className="text-sm mb-1">
+            Litros estimados:{" "}
+            <b>{litros ? litros.toFixed(1) : "0.0"} L</b>
+          </p>
+          <p className="text-sm mb-1">
+            Combustible:{" "}
+            <b>${Math.round(combustible).toLocaleString("es-CL")}</b>
+          </p>
+          <p className="text-sm mb-1">
+            Peajes:{" "}
+            <b>${Math.round(totalPeajes).toLocaleString("es-CL")}</b>
+          </p>
+          <p className="text-lg font-semibold text-emerald-700 mt-2">
+            Total estimado:{" "}
+            <b>${Math.round(total).toLocaleString("es-CL")}</b>
+          </p>
         </div>
       </div>
     </div>

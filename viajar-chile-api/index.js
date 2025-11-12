@@ -4,8 +4,11 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 
+// 🔹 Importar routers
 import authRoutes from "./routes/auth.js";
-import hotelsRoutes from "./routes/hotels.js"; // <- ESTE ES TU ROUTER DE BÚSQUEDA
+import hotelsRoutes from "./routes/hotels.js";
+
+
 
 const app = express();
 
@@ -44,8 +47,9 @@ app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
 app.use("/api/auth", authRoutes);
 
-// 👇 Usa ESTE endpoint para buscar alojamientos (Booking via RapidAPI por ahora)
+// 👇 Endpoint para búsqueda de alojamientos (Booking via RapidAPI)
 app.use("/api/search", hotelsRoutes);
+
 
 /* ========= Conexión a MongoDB y arranque ========= */
 async function startServer() {

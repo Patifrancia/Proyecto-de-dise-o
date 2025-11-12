@@ -1,47 +1,72 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { i18n } from "../i18n"; // ⬅️ import del i18n
+import { i18n } from "../i18n";
+import logo from "../assets/rutacl.png"; // tu logo PNG
 
 export default function Home() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
 
   const images = [
-    "https://plus.unsplash.com/premium_photo-1697729940854-0f73aadaff88?auto=format&fit=crop&q=80&w=1600",
-    "https://images.unsplash.com/photo-1494783435443-c15feee0a80a?auto=format&fit=crop&q=80&w=1600",
-    "https://images.unsplash.com/photo-1617173205830-95d15d469996?auto=format&fit=crop&q=80&w=1600",
-    "https://images.unsplash.com/photo-1724250385111-3e06c1429b29?auto=format&fit=crop&q=80&w=1600",
+    {
+      url: "https://plus.unsplash.com/premium_photo-1697729940854-0f73aadaff88?auto=format&fit=crop&q=80&w=1600",
+      credit: "📸 Torres del Paine — Unsplash",
+    },
+    {
+      url: "https://images.unsplash.com/photo-1494783435443-c15feee0a80a?auto=format&fit=crop&q=80&w=1600",
+      credit: "📸 Desierto de Atacama — Unsplash",
+    },
+    {
+      url: "https://images.unsplash.com/photo-1617173205830-95d15d469996?auto=format&fit=crop&q=80&w=1600",
+      credit: "📸 Valparaíso — Unsplash",
+    },
+    {
+      url: "https://images.unsplash.com/photo-1724250385111-3e06c1429b29?auto=format&fit=crop&q=80&w=1600",
+      credit: "📸 Lagos del Sur — Unsplash",
+    },
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
   useEffect(() => {
-    const id = setInterval(() => setCurrentIndex((i) => (i + 1) % images.length), 5000);
+    const id = setInterval(
+      () => setCurrentIndex((i) => (i + 1) % images.length),
+      5000
+    );
     return () => clearInterval(id);
   }, [images.length]);
 
   return (
     <div className="font-sans text-gray-900 overflow-x-hidden">
-      {/* HERO */}
-      <div className="relative w-screen h-[86vh] overflow-hidden">
-        {/* ⬇️ render de las imágenes */}
-        {images.map((src, idx) => (
+      {/* ===== HERO ===== */}
+      <div className="relative w-screen h-[90vh] overflow-hidden">
+        {/* Fondo de imágenes */}
+        {images.map((img, idx) => (
           <img
             key={idx}
-            src={src}
+            src={img.url}
             alt={`Slide ${idx}`}
-            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 pointer-events-none ${
               idx === currentIndex ? "opacity-100" : "opacity-0"
             }`}
           />
         ))}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+        {/* Capa oscura */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent pointer-events-none" />
 
+        {/* Créditos de la imagen */}
+        <div className="absolute bottom-2 right-4 text-xs text-gray-200 bg-black/30 px-3 py-1 rounded-lg backdrop-blur-sm">
+          {images[currentIndex].credit}
+        </div>
+
+        {/* Contenido central con logo */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-6">
-          {/* Marca/título */}
-          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight drop-shadow-xl">
-            {i18n.t("brand")}
-          </h1>
+          <img
+            src={logo}
+            alt="RutaCL"
+            className="h-32 md:h-40 w-auto mb-6 drop-shadow-2xl select-none pointer-events-none"
+          />
+
           <p className="mt-2 text-lg md:text-xl text-gray-200 opacity-90">
             {i18n.t("tagline")} 🇨🇱
           </p>
@@ -73,14 +98,13 @@ export default function Home() {
         </div>
       </div>
 
-      {/* SECCIÓN EXPLICATIVA */}
+      {/* ===== SECCIÓN EXPLICATIVA ===== */}
       <section className="bg-white py-16 text-gray-800">
         <div className="max-w-6xl mx-auto px-6 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             {i18n.t("whatYouCanDo", { brand: i18n.t("brand") })}
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto mb-12">
-            {/* Puedes mantener este texto estático o llevarlo a i18n si quieres */}
             RutaCL te ayuda a organizar tus aventuras por Chile de forma simple y visual.
           </p>
 
@@ -114,6 +138,25 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ===== FOOTER ===== */}
+      <footer className="bg-neutral-900 text-neutral-300 py-8">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
+          <p>© {new Date().getFullYear()} RutaCL — Todos los derechos reservados.</p>
+          <div className="flex gap-6">
+            <a href="/sobre" className="hover:text-white transition">Sobre nosotros</a>
+            <a href="/contacto" className="hover:text-white transition">Contacto</a>
+            <a
+              href="https://github.com"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-white transition"
+            >
+              GitHub
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
