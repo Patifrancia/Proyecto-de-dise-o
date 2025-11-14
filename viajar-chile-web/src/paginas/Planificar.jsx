@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   MapPin,
@@ -7,32 +7,49 @@ import {
   Download,
   Trash2,
 } from "lucide-react";
+import LocationsSearchBox from "../componentes/LocationsSearchBox";
 
 export default function Planificar() {
   const [stops, setStops] = useState([
-    { name: "Santiago, Región Metropolitana, Chile" },
+    { name: "Santiago, Región Metropolitana, Chile", id: "santiago" },
   ]);
 
-  const [query, setQuery] = useState("");
-  const inputRef = useRef(null);
-
-  const addManualStop = () => {
-    const trimmed = query.trim();
-    if (!trimmed) return;
-    if (!stops.some((s) => s.name.toLowerCase() === trimmed.toLowerCase())) {
-      setStops([...stops, { name: trimmed }]);
+  /**
+   * Agrega una localidad a la lista de paradas
+   * @param {Object} location - Objeto de la localidad seleccionada
+   */
+  const addStop = (location) => {
+    if (!location || !location.name) return;
+    
+    // Verificar que no esté ya en la lista
+    const locationName = location.name.toLowerCase();
+    if (stops.some((s) => s.name.toLowerCase() === locationName)) {
+      return; // Ya existe, no agregar
     }
-    setQuery("");
-    inputRef.current?.focus();
+
+    // Formatear el nombre con región si está disponible
+    const formattedName = location.region
+      ? `${location.name}, ${location.region}, Chile`
+      : `${location.name}, Chile`;
+
+    // Agregar a la lista
+    setStops([
+      ...stops,
+      {
+        name: formattedName,
+        id: location.id || location.name.toLowerCase().replace(/\s+/g, "-"),
+        region: location.region,
+        coordinates: location.coordinates,
+      },
+    ]);
   };
 
-  const deleteStop = (i) => setStops(stops.filter((_, idx) => idx !== i));
-
-  const onKeyDownInput = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      addManualStop();
-    }
+  /**
+   * Elimina una parada de la lista
+   * @param {number} index - Índice de la parada a eliminar
+   */
+  const deleteStop = (index) => {
+    setStops(stops.filter((_, idx) => idx !== index));
   };
 
   return (
@@ -43,7 +60,7 @@ export default function Planificar() {
           Planifica tu ruta de viaje
         </h1>
         <p className="text-gray-600 max-w-2xl mx-auto">
-          Agrega manualmente las ciudades o pueblos de Chile que quieras visitar.
+          Busca y agrega ciudades, pueblos y localidades de Chile para planificar tu ruta.
         </p>
       </header>
 
@@ -78,24 +95,16 @@ export default function Planificar() {
             ))}
           </ul>
 
-          {/* AGREGAR MANUALMENTE */}
-          <div className="flex gap-2 mt-4">
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder="Escribe una ciudad o pueblo..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={onKeyDownInput}
-              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500"
+          {/* Buscador de localidades */}
+          <div className="mt-4">
+            <LocationsSearchBox
+              placeholder="Busca ciudades, pueblos, localidades..."
+              size="md"
+              onSelect={addStop}
             />
-            <button
-              type="button"
-              onClick={addManualStop}
-              className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm font-medium"
-            >
-              Agregar
-            </button>
+            <p className="text-xs text-gray-500 mt-2">
+              Solo se muestran lugares geográficos de Chile, no alojamientos
+            </p>
           </div>
         </section>
 
@@ -146,12 +155,3 @@ export default function Planificar() {
   );
 }
 
-/* --- Hook de debounce (ya no necesario, pero lo dejamos por compatibilidad) --- */
-function useDebounce(value, delay = 400) {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const id = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(id);
-  }, [value, delay]);
-  return debounced;
-}

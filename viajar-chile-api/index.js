@@ -7,6 +7,9 @@ import cors from "cors";
 // 🔹 Importar routers
 import authRoutes from "./routes/auth.js";
 import hotelsRoutes from "./routes/hotels.js";
+import searchRoutes from "./routes/search.js";
+import staysRoutes from "./routes/stays.js";
+import ciudadesRoutes from "./routes/ciudades.js";
 
 
 
@@ -47,8 +50,11 @@ app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
 app.use("/api/auth", authRoutes);
 
-// 👇 Endpoint para búsqueda de alojamientos (Booking via RapidAPI)
-app.use("/api/search", hotelsRoutes);
+// 👇 Endpoints de búsqueda
+app.use("/api/search", searchRoutes); // Búsqueda genérica (compatibilidad)
+app.use("/api/stays", staysRoutes); // Búsqueda específica de estadías
+app.use("/api/ciudades", ciudadesRoutes); // Búsqueda de ciudades/localidades
+app.use("/api/hotels", hotelsRoutes); // Búsqueda de hoteles (Booking específico)
 
 
 /* ========= Conexión a MongoDB y arranque ========= */

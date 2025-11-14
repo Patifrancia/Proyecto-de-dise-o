@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { i18n } from "../i18n";
-import logo from "../assets/rutacl.png"; // tu logo PNG
+import logo from "../assets/rutacl.png";
 
 export default function Home() {
   const navigate = useNavigate();
