@@ -9,7 +9,8 @@ import Buscar from "./paginas/Buscar.jsx";
 import Planificar from "./paginas/Planificar.jsx";
 import Favoritos from "./paginas/Favoritos.jsx";
 import Costos from "./paginas/Costos.jsx";
-import { i18n } from "./i18n"; 
+import { i18n } from "./i18n";
+import rutaclLogo from "./assets/rutacl.png"; 
 
 function getInitials(nameOrEmail) {
   const s = (nameOrEmail || "").trim();
@@ -101,7 +102,13 @@ function Header() {
   return (
     <header className={headerClass}>
       <nav className="mx-auto w-full max-w-screen-xl px-4 py-3 flex items-center justify-between">
-        <Link to="/" className={brandClass}>{i18n.t("brand")}</Link>
+        <Link to="/">
+          <img
+            src={rutaclLogo}
+            alt="RutaCL"
+            className="h-24 w-auto"
+          />
+        </Link>
 
         {/* derecha: selector + login o avatar */}
         <div className="flex gap-3 items-center">

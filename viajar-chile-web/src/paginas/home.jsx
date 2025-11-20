@@ -9,7 +9,7 @@ export default function Home() {
 
   const images = [
     {
-      url: "https://plus.unsplash.com/premium_photo-1697729940854-0f73aadaff88?auto=format&fit=crop&q=80&w=1600",
+      url: "https://images.unsplash.com/photo-1558517286-6b7b81953cb5?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       credit: "📸 Torres del Paine — Unsplash",
     },
     {
@@ -141,19 +141,25 @@ export default function Home() {
 
       {/* ===== FOOTER ===== */}
       <footer className="bg-neutral-900 text-neutral-300 py-8">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
-          <p>© {new Date().getFullYear()} RutaCL — Todos los derechos reservados.</p>
-          <div className="flex gap-6">
-            <a href="/sobre" className="hover:text-white transition">Sobre nosotros</a>
-            <a href="/contacto" className="hover:text-white transition">Contacto</a>
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-white transition"
-            >
-              GitHub
-            </a>
+        <div className="max-w-6xl mx-auto px-6 flex flex-col gap-6 text-sm">
+          <div className="flex flex-col md:flex-row justify-between gap-4">
+            <p>© {new Date().getFullYear()} RutaCL — Todos los derechos reservados.</p>
+          </div>
+          
+          <div className="flex flex-col md:flex-row gap-6 border-t border-neutral-800 pt-6">
+            <div className="flex-1">
+              <h3 className="font-semibold text-white mb-2">Sobre nosotros</h3>
+              <p className="text-neutral-400">
+                Proyecto desarrollado por Josefa Juica y Patricia Francia en Diseño de Software para el proyecto semestral de la Universidad Adolfo Ibáñez.
+              </p>
+            </div>
+            
+            <div className="flex-1">
+              <h3 className="font-semibold text-white mb-2">Contacto</h3>
+              <p className="text-neutral-400">
+                pfrancia@alumnos.uai.cl jojuica@alumnos.uai.cl
+              </p>
+            </div>
           </div>
         </div>
       </footer>
