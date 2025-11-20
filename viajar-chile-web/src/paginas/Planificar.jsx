@@ -11,6 +11,9 @@ import {
   DollarSign,
   Navigation,
   Loader2,
+  Cloud,
+  CloudRain,
+  Umbrella,
 } from "lucide-react";
 import LocationsSearchBox from "../componentes/LocationsSearchBox";
 
@@ -91,14 +94,15 @@ export default function Planificar() {
       });
 
       if (!response.ok) {
-        throw new Error("Error al generar el itinerario");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
       setItinerary(data);
     } catch (error) {
       console.error("Error al generar itinerario:", error);
-      setErrorItinerary("No se pudo generar el itinerario. Por favor, intenta nuevamente.");
+      setErrorItinerary(error.message || "No se pudo generar el itinerario. Por favor, intenta nuevamente.");
     } finally {
       setLoadingItinerary(false);
     }
@@ -303,6 +307,41 @@ export default function Planificar() {
                     Detalle: Peajes ${segment.estimatedCost.tolls?.toLocaleString("es-CL") || 0} • 
                     Combustible ${segment.estimatedCost.fuel?.toLocaleString("es-CL") || 0} • 
                     Otros ${segment.estimatedCost.other?.toLocaleString("es-CL") || 0}
+                  </div>
+                )}
+
+                {/* Alternativas si llueve */}
+                {segment.rainAlternatives && segment.rainAlternatives.length > 0 && (
+                  <div className="mt-4 ml-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CloudRain className="w-4 h-4 text-blue-600" />
+                      <p className="text-sm font-medium text-blue-900">Alternativas si llueve</p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {segment.rainAlternatives.map((alt, altIdx) => (
+                        <div key={altIdx} className="bg-white p-2 rounded border border-blue-100">
+                          <div className="flex items-start gap-2">
+                            {alt.type === "indoor" && <Umbrella className="w-3 h-3 text-blue-600 mt-0.5 shrink-0" />}
+                            {alt.type === "covered" && <Cloud className="w-3 h-3 text-blue-600 mt-0.5 shrink-0" />}
+                            {alt.type === "alternative" && <Route className="w-3 h-3 text-blue-600 mt-0.5 shrink-0" />}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-gray-800">{alt.name}</p>
+                              <p className="text-xs text-gray-600 mt-0.5">{alt.description}</p>
+                              {alt.locations && alt.locations.length > 0 && (
+                                <ul className="mt-1 space-y-0.5">
+                                  {alt.locations.map((loc, locIdx) => (
+                                    <li key={locIdx} className="text-xs text-gray-500 flex items-center gap-1">
+                                      <MapPin className="w-2.5 h-2.5" />
+                                      {loc}
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
