@@ -1,6 +1,7 @@
 import { Router } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
 import User from "../models/User.js";
 
 const router = Router();
@@ -28,6 +29,10 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ error: "Correo y password requeridos" });
     }
 
+    if (password.length < 6) {
+      return res.status(400).json({ error: "La contraseña debe tener al menos 6 caracteres" });
+    }
+
     const existe = await User.findOne({ correo });
     if (existe) return res.status(409).json({ error: "El correo ya está registrado" });
 
@@ -39,6 +44,10 @@ router.post("/register", async (req, res) => {
       token: sign(user.id),
     });
   } catch (e) {
+    console.error("Error en registro:", e);
+    if (e.code === 11000) {
+      return res.status(409).json({ error: "El correo ya está registrado" });
+    }
     return res.status(500).json({ error: "Error en el servidor" });
   }
 });
@@ -50,6 +59,11 @@ router.post("/login", async (req, res) => {
     const user = await User.findOne({ correo });
     if (!user) return res.status(401).json({ error: "Credenciales inválidas" });
 
+    // Si el usuario se registró con Google, no tiene passwordHash
+    if (!user.passwordHash) {
+      return res.status(401).json({ error: "Esta cuenta se registró con Google. Usa el botón de Google para iniciar sesión." });
+    }
+
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) return res.status(401).json({ error: "Credenciales inválidas" });
 
@@ -59,6 +73,73 @@ router.post("/login", async (req, res) => {
     });
   } catch (e) {
     return res.status(500).json({ error: "Error en el servidor" });
+  }
+});
+
+// ===== Login/Registro con Google =====
+router.post("/google/callback", async (req, res) => {
+  try {
+    const { credential } = req.body;
+    if (!credential) {
+      return res.status(400).json({ error: "Token de Google requerido" });
+    }
+
+    // Verificar el token de Google usando google-auth-library
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    
+    let ticket;
+    try {
+      ticket = await client.verifyIdToken({
+        idToken: credential,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+    } catch (verifyError) {
+      console.error("Error verificando token de Google:", verifyError);
+      return res.status(401).json({ error: "Token de Google inválido" });
+    }
+
+    const payload = ticket.getPayload();
+    const { email, name, picture, sub: googleId } = payload;
+    
+    if (!email) {
+      return res.status(400).json({ error: "No se pudo obtener el correo de Google" });
+    }
+
+    // Buscar o crear usuario
+    let user = await User.findOne({ correo: email.toLowerCase() });
+    
+    if (user) {
+      // Si existe, actualizar googleId y avatar si no los tiene
+      if (!user.googleId) {
+        user.googleId = googleId;
+      }
+      if (!user.avatar && picture) {
+        user.avatar = picture;
+      }
+      await user.save();
+    } else {
+      // Crear nuevo usuario
+      user = await User.create({
+        nombre: name || email.split('@')[0],
+        correo: email.toLowerCase(),
+        googleId: googleId,
+        avatar: picture,
+        passwordHash: null, // No tiene contraseña
+      });
+    }
+
+    return res.json({
+      user: { 
+        id: user.id, 
+        nombre: user.nombre, 
+        correo: user.correo,
+        avatar: user.avatar,
+      },
+      token: sign(user.id),
+    });
+  } catch (e) {
+    console.error("Error en Google callback:", e);
+    return res.status(500).json({ error: "Error al autenticar con Google" });
   }
 });
 

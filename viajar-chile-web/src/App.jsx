@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { LogOut } from "lucide-react";
 import Home from "./paginas/home.jsx";
 import Login from "./paginas/Login.jsx";
+import Registro from "./paginas/Registro.jsx";
 import Buscar from "./paginas/Buscar.jsx";
 import Planificar from "./paginas/Planificar.jsx";
 import Favoritos from "./paginas/Favoritos.jsx";
@@ -184,7 +185,7 @@ export default function App() {
         />
         <Route path="/costos" element={<Costos />} />
 
-        <Route path="/registro" element={<div className="p-6">Registro (pendiente)</div>} />
+        <Route path="/registro" element={<Registro />} />
         <Route path="*" element={<div className="p-6">404</div>} />
       </Routes>
     </div>

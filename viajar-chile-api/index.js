@@ -10,6 +10,7 @@ import hotelsRoutes from "./routes/hotels.js";
 import searchRoutes from "./routes/search.js";
 import staysRoutes from "./routes/stays.js";
 import ciudadesRoutes from "./routes/ciudades.js";
+import itineraryRoutes from "./routes/itinerary.js";
 
 
 
@@ -55,6 +56,7 @@ app.use("/api/search", searchRoutes); // Búsqueda genérica (compatibilidad)
 app.use("/api/stays", staysRoutes); // Búsqueda específica de estadías
 app.use("/api/ciudades", ciudadesRoutes); // Búsqueda de ciudades/localidades
 app.use("/api/hotels", hotelsRoutes); // Búsqueda de hoteles (Booking específico)
+app.use("/api/itinerary", itineraryRoutes); // Generación de itinerarios con IA
 
 
 /* ========= Conexión a MongoDB y arranque ========= */

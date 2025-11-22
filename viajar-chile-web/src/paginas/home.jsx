@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { i18n } from "../i18n";
 import logo from "../assets/rutacl.png";
+import PlacesSearchBox from "../componentes/PlacesSearchBox";
 
 export default function Home() {
   const navigate = useNavigate();
-  const [query, setQuery] = useState("");
 
   const images = [
     {
@@ -71,30 +71,17 @@ export default function Home() {
             {i18n.t("tagline")} 🇨🇱
           </p>
 
-          {/* Buscador */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const q = query.trim();
-              navigate(q ? `/buscar?q=${encodeURIComponent(q)}` : `/buscar`);
-            }}
-            className="mt-8 flex w-full max-w-md items-center rounded-2xl bg-white/90 p-1 shadow-lg backdrop-blur-sm"
-          >
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={i18n.t("searchPlaceholder")}
-              className="flex-1 px-4 py-2 rounded-l-2xl bg-transparent text-gray-900 focus:outline-none"
-              aria-label={i18n.t("searchPlaceholder")}
+          {/* Buscador de lugares */}
+          <div className="mt-8 w-full max-w-md">
+            <PlacesSearchBox
+              placeholder="Busca lugares en Chile..."
+              size="lg"
+              onSelect={(place) => {
+                navigate(`/buscar?q=${encodeURIComponent(place.name || place.location)}`);
+              }}
+              className="bg-white/90 backdrop-blur-sm"
             />
-            <button
-              className="rounded-2xl bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700 transition"
-              type="submit"
-            >
-              {i18n.t("search")}
-            </button>
-          </form>
+          </div>
         </div>
       </div>
 
@@ -141,25 +128,19 @@ export default function Home() {
 
       {/* ===== FOOTER ===== */}
       <footer className="bg-neutral-900 text-neutral-300 py-8">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col gap-6 text-sm">
-          <div className="flex flex-col md:flex-row justify-between gap-4">
-            <p>© {new Date().getFullYear()} RutaCL — Todos los derechos reservados.</p>
-          </div>
-          
-          <div className="flex flex-col md:flex-row gap-6 border-t border-neutral-800 pt-6">
-            <div className="flex-1">
-              <h3 className="font-semibold text-white mb-2">Sobre nosotros</h3>
-              <p className="text-neutral-400">
-                Proyecto desarrollado por Josefa Juica y Patricia Francia en Diseño de Software para el proyecto semestral de la Universidad Adolfo Ibáñez.
-              </p>
-            </div>
-            
-            <div className="flex-1">
-              <h3 className="font-semibold text-white mb-2">Contacto</h3>
-              <p className="text-neutral-400">
-                pfrancia@alumnos.uai.cl jojuica@alumnos.uai.cl
-              </p>
-            </div>
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
+          <p>© {new Date().getFullYear()} RutaCL — Todos los derechos reservados.</p>
+          <div className="flex gap-6">
+            <a href="/sobre" className="hover:text-white transition">Sobre nosotros</a>
+            <a href="/contacto" className="hover:text-white transition">Contacto</a>
+            <a
+              href="https://github.com"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-white transition"
+            >
+              GitHub
+            </a>
           </div>
         </div>
       </footer>

@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "", remember: true });
@@ -65,6 +66,76 @@ export default function Login() {
     }
   }
 
+  async function handleGoogleCallback(response) {
+    try {
+      setLoading(true);
+      setError("");
+
+      // Enviar el token de Google al backend
+      const res = await fetch(`${API_URL}/api/auth/google/callback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential: response.credential }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Error al autenticar con Google");
+      }
+
+      // Guarda token y usuario
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Navega al home
+      navigate("/");
+    } catch (err) {
+      setError(err.message || "Error al autenticar con Google.");
+      setLoading(false);
+    }
+  }
+
+  function loadGoogleScript() {
+    return new Promise((resolve, reject) => {
+      if (window.google?.accounts) {
+        resolve();
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+
+  useEffect(() => {
+    if (GOOGLE_CLIENT_ID) {
+      loadGoogleScript().then(() => {
+        window.google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: handleGoogleCallback,
+        });
+
+        window.google.accounts.id.renderButton(
+          document.getElementById("google-signin-button"),
+          { 
+            theme: "outline", 
+            size: "large", 
+            width: "100%",
+            text: "signin_with"
+          }
+        );
+      }).catch(() => {
+        // Silenciar error si no se puede cargar
+      });
+    }
+  }, []);
+
   return (
     <div className="min-h-dvh grid place-items-center bg-gray-50 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
@@ -74,6 +145,21 @@ export default function Login() {
         {error && (
           <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
             {error}
+          </div>
+        )}
+
+        {/* Botón de Google */}
+        {GOOGLE_CLIENT_ID && (
+          <div className="mt-6">
+            <div id="google-signin-button" className="w-full"></div>
+          </div>
+        )}
+
+        {GOOGLE_CLIENT_ID && (
+          <div className="mt-6 flex items-center gap-4">
+            <div className="flex-1 h-px bg-gray-300"></div>
+            <span className="text-sm text-gray-500">o</span>
+            <div className="flex-1 h-px bg-gray-300"></div>
           </div>
         )}
 
