@@ -3,6 +3,7 @@ import { MapPin, Heart, Route, Trash2, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 
+
 export default function FavoritesCard({ favorite, onRemove, onPlanRoute }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   

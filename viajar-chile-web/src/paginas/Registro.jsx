@@ -1,17 +1,27 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { i18n } from "../i18n";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 export default function Registro() {
-  const [form, setForm] = useState({ nombre: "", email: "", password: "", confirmPassword: "" });
+  const [form, setForm] = useState({
+    nombre: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [show, setShow] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  function t(key, opts) {
+    return i18n.t(key, opts);
+  }
 
   function onChange(e) {
     const { name, value, type, checked } = e.target;
@@ -22,19 +32,18 @@ export default function Registro() {
     e.preventDefault();
     setError("");
 
-    // Validaciones
     if (!form.nombre || !form.email || !form.password) {
-      setError("Completa todos los campos.");
+      setError(t("auth.error_missing_fields"));
       return;
     }
 
     if (form.password.length < 6) {
-      setError("La contraseña debe tener al menos 6 caracteres.");
+      setError(t("auth.error_short_password"));
       return;
     }
 
     if (form.password !== form.confirmPassword) {
-      setError("Las contraseñas no coinciden.");
+      setError(t("auth.error_password_mismatch"));
       return;
     }
 
@@ -58,23 +67,19 @@ export default function Registro() {
         throw new Error(msg);
       }
 
-      // Guarda token y usuario
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      // Navega al home
       navigate("/");
     } catch (err) {
-      setError(err.message || "Error al crear la cuenta.");
+      setError(err.message || t("auth.error_generic"));
     } finally {
       setLoading(false);
     }
   }
 
-
   async function handleGoogleCallback(response) {
     try {
-      // Enviar el token de Google al backend
       const res = await fetch(`${API_URL}/api/auth/google/callback`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -87,14 +92,12 @@ export default function Registro() {
         throw new Error(data?.error || "Error al autenticar con Google");
       }
 
-      // Guarda token y usuario
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      // Navega al home
       navigate("/");
     } catch (err) {
-      setError(err.message || "Error al autenticar con Google.");
+      setError(err.message || t("auth.error_google"));
       setLoading(false);
     }
   }
@@ -118,54 +121,57 @@ export default function Registro() {
 
   useEffect(() => {
     if (GOOGLE_CLIENT_ID) {
-      loadGoogleScript().then(() => {
-        window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: handleGoogleCallback,
-        });
+      loadGoogleScript()
+        .then(() => {
+          window.google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCallback,
+          });
 
-        window.google.accounts.id.renderButton(
-          document.getElementById("google-signin-button"),
-          { 
-            theme: "outline", 
-            size: "large", 
-            width: "100%",
-            text: "signup_with"
-          }
-        );
-      }).catch(() => {
-        // Silenciar error si no se puede cargar
-      });
+          window.google.accounts.id.renderButton(
+            document.getElementById("google-signin-button"),
+            {
+              theme: "outline",
+              size: "large",
+              width: "100%",
+              text: "signup_with",
+            }
+          );
+        })
+        .catch(() => {});
     }
   }, []);
 
   return (
     <div className="min-h-dvh grid place-items-center bg-gray-50 px-4 py-8">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
-        <h1 className="text-2xl font-bold">Crear cuenta</h1>
-        <p className="text-sm text-gray-600 mt-1">Regístrate para continuar.</p>
+        <h1 className="text-2xl font-bold text-center">
+          {t("auth.register_title")}
+        </h1>
+        <p className="text-sm text-gray-600 mt-1 text-center">
+          {t("auth.register_subtitle")}
+        </p>
 
         {error && (
-          <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 text-center">
             {error}
           </div>
         )}
 
-        {/* Botón de Google */}
         <div className="mt-6">
-          <div id="google-signin-button" className="w-full"></div>
+          <div id="google-signin-button" className="w-full" />
         </div>
 
         <div className="mt-6 flex items-center gap-4">
-          <div className="flex-1 h-px bg-gray-300"></div>
-          <span className="text-sm text-gray-500">o</span>
-          <div className="flex-1 h-px bg-gray-300"></div>
+          <div className="flex-1 h-px bg-gray-300" />
+          <span className="text-sm text-gray-500">{t("auth.or")}</span>
+          <div className="flex-1 h-px bg-gray-300" />
         </div>
 
         <form onSubmit={onSubmit} className="mt-6 space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nombre completo
+              {t("auth.fullname_label")}
             </label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -174,7 +180,7 @@ export default function Registro() {
                 name="nombre"
                 value={form.nombre}
                 onChange={onChange}
-                placeholder="Juan Pérez"
+                placeholder={t("auth.fullname_placeholder")}
                 autoComplete="name"
                 className="w-full pl-10 rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-200"
                 disabled={loading}
@@ -183,7 +189,9 @@ export default function Registro() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Correo</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t("auth.email_label")}
+            </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
@@ -191,7 +199,7 @@ export default function Registro() {
                 name="email"
                 value={form.email}
                 onChange={onChange}
-                placeholder="ejemplo@correo.com"
+                placeholder={t("auth.email_placeholder")}
                 autoComplete="email"
                 className="w-full pl-10 rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-200"
                 disabled={loading}
@@ -200,7 +208,9 @@ export default function Registro() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {t("auth.password_label")}
+            </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
@@ -226,7 +236,7 @@ export default function Registro() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Confirmar contraseña
+              {t("auth.confirm_password_label")}
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -246,7 +256,11 @@ export default function Registro() {
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 tabIndex={-1}
               >
-                {showConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showConfirm ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
               </button>
             </div>
           </div>
@@ -256,18 +270,17 @@ export default function Registro() {
             disabled={loading}
             className="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-white font-medium hover:bg-emerald-700 disabled:opacity-60"
           >
-            {loading ? "Creando cuenta..." : "Crear cuenta"}
+            {loading ? t("auth.submitting") : t("auth.submit_register")}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-gray-600">
-          ¿Ya tienes cuenta?{" "}
+          {t("auth.have_account")}{" "}
           <Link to="/login" className="font-medium hover:underline text-emerald-600">
-            Iniciar sesión
+            {t("auth.go_login")}
           </Link>
         </p>
       </div>
     </div>
   );
 }
-

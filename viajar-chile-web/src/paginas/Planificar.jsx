@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   MapPin,
-  PlusCircle,
   Route,
   Download,
   Trash2,
@@ -16,10 +15,14 @@ import {
   Umbrella,
 } from "lucide-react";
 import LocationsSearchBox from "../componentes/LocationsSearchBox";
+import { i18n } from "../i18n";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 export default function Planificar() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
   const [stops, setStops] = useState([
     { name: "Santiago, Región Metropolitana, Chile", id: "santiago" },
   ]);
@@ -27,25 +30,44 @@ export default function Planificar() {
   const [loadingItinerary, setLoadingItinerary] = useState(false);
   const [errorItinerary, setErrorItinerary] = useState(null);
 
-  /**
-   * Agrega una localidad a la lista de paradas
-   * @param {Object} location - Objeto de la localidad seleccionada
-   */
+  // Manejar el parámetro ?add= desde el home
+  useEffect(() => {
+    const locationFromUrl = searchParams.get("add");
+    if (locationFromUrl && locationFromUrl.trim()) {
+      // Agregar la localidad desde la URL
+      const newLocation = {
+        name: locationFromUrl,
+        id: locationFromUrl.toLowerCase().replace(/\s+/g, "-"),
+      };
+      
+      // Evitar duplicados
+      setStops((prevStops) => {
+        const isDuplicate = prevStops.some(
+          (s) => s.name.toLowerCase() === locationFromUrl.toLowerCase()
+        );
+        if (!isDuplicate) {
+          return [...prevStops, newLocation];
+        }
+        return prevStops;
+      });
+
+      // Limpiar el parámetro de la URL
+      navigate("/planificar", { replace: true });
+    }
+  }, [searchParams, navigate]);
+
   const addStop = (location) => {
     if (!location || !location.name) return;
-    
-    // Verificar que no esté ya en la lista
+
     const locationName = location.name.toLowerCase();
     if (stops.some((s) => s.name.toLowerCase() === locationName)) {
-      return; // Ya existe, no agregar
+      return;
     }
 
-    // Formatear el nombre con región si está disponible
     const formattedName = location.region
       ? `${location.name}, ${location.region}, Chile`
       : `${location.name}, Chile`;
 
-    // Agregar a la lista
     setStops([
       ...stops,
       {
@@ -57,24 +79,15 @@ export default function Planificar() {
     ]);
   };
 
-  /**
-   * Elimina una parada de la lista
-   * @param {number} index - Índice de la parada a eliminar
-   */
   const deleteStop = (index) => {
     setStops(stops.filter((_, idx) => idx !== index));
-    // Limpiar itinerario si cambia la ruta
     if (itinerary) setItinerary(null);
   };
 
-  /**
-   * Genera un itinerario automático usando IA
-   */
   const generateItinerary = async () => {
-    // Validar que haya entre 2 y 5 destinos (excluyendo Santiago si es solo uno)
     const validStops = stops.length >= 2 && stops.length <= 5;
     if (!validStops) {
-      setErrorItinerary("Se requieren entre 2 y 5 destinos para generar un itinerario");
+      setErrorItinerary(i18n.t("plan_warning_too_few"));
       return;
     }
 
@@ -95,32 +108,38 @@ export default function Planificar() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+        throw new Error(
+          errorData.message ||
+            `Error ${response.status}: ${response.statusText}`
+        );
       }
 
       const data = await response.json();
       setItinerary(data);
     } catch (error) {
       console.error("Error al generar itinerario:", error);
-      setErrorItinerary(error.message || "No se pudo generar el itinerario. Por favor, intenta nuevamente.");
+      setErrorItinerary(
+        error.message ||
+          "No se pudo generar el itinerario. Por favor, intenta nuevamente."
+      );
     } finally {
       setLoadingItinerary(false);
     }
   };
 
-  // Contar destinos válidos (excluyendo Santiago inicial si es el único)
   const validDestinationsCount = stops.length;
-  const canGenerateItinerary = validDestinationsCount >= 2 && validDestinationsCount <= 5;
+  const canGenerateItinerary =
+    validDestinationsCount >= 2 && validDestinationsCount <= 5;
 
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-10">
       {/* Encabezado */}
       <header className="text-center mb-10">
         <h1 className="text-3xl md:text-4xl font-bold text-emerald-700 mb-3">
-          Planifica tu ruta de viaje
+          {i18n.t("plan_title")}
         </h1>
         <p className="text-gray-600 max-w-2xl mx-auto">
-          Busca y agrega ciudades, pueblos y localidades de Chile para planificar tu ruta.
+          {i18n.t("plan_subtitle")}
         </p>
       </header>
 
@@ -130,7 +149,7 @@ export default function Planificar() {
           <div className="flex items-center gap-2 mb-4">
             <Route className="text-emerald-600" />
             <h2 className="text-lg font-semibold text-gray-800">
-              Paradas del viaje
+              {i18n.t("plan_stops_title")}
             </h2>
           </div>
 
@@ -158,12 +177,12 @@ export default function Planificar() {
           {/* Buscador de localidades */}
           <div className="mt-4">
             <LocationsSearchBox
-              placeholder="Busca ciudades, pueblos, localidades..."
+              placeholder={i18n.t("plan_search_placeholder")}
               size="md"
               onSelect={addStop}
             />
             <p className="text-xs text-gray-500 mt-2">
-              Solo se muestran lugares geográficos de Chile, no alojamientos
+              {i18n.t("plan_search_hint")}
             </p>
           </div>
         </section>
@@ -173,24 +192,20 @@ export default function Planificar() {
           <div className="flex items-center gap-2 mb-4">
             <MapPin className="text-emerald-600" />
             <h2 className="text-lg font-semibold text-gray-800">
-              Acciones rápidas
+              {i18n.t("plan_actions_title")}
             </h2>
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Link
-              to="/buscar"
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm font-medium"
-            >
-              <PlusCircle className="w-4 h-4" /> Buscar destino
-            </Link>
-
-            <Link
-              to="/costos"
+            {/* Calcular costos */}
+            <button
+              type="button"
+              onClick={() => navigate("/costos")}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 text-sm font-medium"
             >
-              <Route className="w-4 h-4" /> Calcular costos
-            </Link>
+              <DollarSign className="w-4 h-4" />
+              <span>{i18n.t("plan_calc_costs")}</span>
+            </button>
 
             {canGenerateItinerary && (
               <button
@@ -201,16 +216,19 @@ export default function Planificar() {
               >
                 {loadingItinerary ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" /> Generando...
+                    <Loader2 className="w-4 h-4 animate-spin" />{" "}
+                    {i18n.t("plan_generating")}
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4" /> Generar itinerario
+                    <Sparkles className="w-4 h-4" />{" "}
+                    {i18n.t("plan_generate_button")}
                   </>
                 )}
               </button>
             )}
 
+            {/* Exportar ruta */}
             <button
               type="button"
               onClick={() => {
@@ -225,15 +243,13 @@ export default function Planificar() {
               }}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm font-medium"
             >
-              <Download className="w-4 h-4" /> Exportar ruta (JSON)
+              <Download className="w-4 h-4" /> {i18n.t("plan_export_json")}
             </button>
           </div>
 
           {!canGenerateItinerary && stops.length > 0 && (
             <p className="text-xs text-gray-500 mt-2">
-              {stops.length < 2 
-                ? "Agrega al menos 2 destinos para generar un itinerario automático"
-                : "El máximo de destinos para generar un itinerario es 5"}
+              {i18n.t("plan_warning_too_few")}
             </p>
           )}
 
@@ -245,7 +261,7 @@ export default function Planificar() {
         </section>
       </div>
 
-      {/* ITINERARIO GENERADO */}
+      {/* ITINERARIO GENERADO (lo dejamos en español por ahora) */}
       {itinerary && (
         <section className="mt-6 rounded-2xl border bg-white shadow-md p-6">
           <div className="flex items-center gap-2 mb-4">
@@ -256,111 +272,158 @@ export default function Planificar() {
           </div>
 
           <div className="space-y-6">
-            {itinerary.segments && itinerary.segments.map((segment, index) => (
-              <div
-                key={index}
-                className="border-l-4 border-purple-500 pl-4 pb-4 last:pb-0"
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-800 mb-1">
-                      {segment.from} → {segment.to}
-                    </h3>
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        <span>Salida: {segment.departureTime}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Navigation className="w-4 h-4" />
-                        <span>Tiempo: {segment.estimatedTime}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <DollarSign className="w-4 h-4" />
-                        <span>Costo: ${segment.estimatedCost?.total?.toLocaleString("es-CL") || 0} {segment.estimatedCost?.currency || "CLP"}</span>
+            {itinerary.segments &&
+              itinerary.segments.map((segment, index) => (
+                <div
+                  key={index}
+                  className="border-l-4 border-purple-500 pl-4 pb-4 last:pb-0"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-800 mb-1">
+                        {segment.from} → {segment.to}
+                      </h3>
+                      <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          <span>Salida: {segment.departureTime}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Navigation className="w-4 h-4" />
+                          <span>Tiempo: {segment.estimatedTime}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <DollarSign className="w-4 h-4" />
+                          <span>
+                            Costo: $
+                            {segment.estimatedCost?.total?.toLocaleString(
+                              "es-CL"
+                            ) || 0}{" "}
+                            {segment.estimatedCost?.currency || "CLP"}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {segment.stops && segment.stops.length > 0 && (
-                  <div className="mt-3 ml-4">
-                    <p className="text-sm font-medium text-gray-700 mb-1">Paradas interesantes:</p>
-                    <ul className="space-y-1">
-                      {segment.stops.map((stop, stopIndex) => (
-                        <li key={stopIndex} className="text-sm text-gray-600 flex items-start gap-2">
-                          <MapPin className="w-3 h-3 mt-1 text-purple-500 shrink-0" />
-                          <div>
-                            <span className="font-medium">{stop.name}</span>
-                            {stop.description && (
-                              <span className="text-gray-500"> — {stop.description}</span>
-                            )}
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {segment.estimatedCost && (
-                  <div className="mt-2 ml-4 text-xs text-gray-500">
-                    Detalle: Peajes ${segment.estimatedCost.tolls?.toLocaleString("es-CL") || 0} • 
-                    Combustible ${segment.estimatedCost.fuel?.toLocaleString("es-CL") || 0} • 
-                    Otros ${segment.estimatedCost.other?.toLocaleString("es-CL") || 0}
-                  </div>
-                )}
-
-                {/* Alternativas si llueve */}
-                {segment.rainAlternatives && segment.rainAlternatives.length > 0 && (
-                  <div className="mt-4 ml-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <CloudRain className="w-4 h-4 text-blue-600" />
-                      <p className="text-sm font-medium text-blue-900">Alternativas si llueve</p>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {segment.rainAlternatives.map((alt, altIdx) => (
-                        <div key={altIdx} className="bg-white p-2 rounded border border-blue-100">
-                          <div className="flex items-start gap-2">
-                            {alt.type === "indoor" && <Umbrella className="w-3 h-3 text-blue-600 mt-0.5 shrink-0" />}
-                            {alt.type === "covered" && <Cloud className="w-3 h-3 text-blue-600 mt-0.5 shrink-0" />}
-                            {alt.type === "alternative" && <Route className="w-3 h-3 text-blue-600 mt-0.5 shrink-0" />}
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium text-gray-800">{alt.name}</p>
-                              <p className="text-xs text-gray-600 mt-0.5">{alt.description}</p>
-                              {alt.locations && alt.locations.length > 0 && (
-                                <ul className="mt-1 space-y-0.5">
-                                  {alt.locations.map((loc, locIdx) => (
-                                    <li key={locIdx} className="text-xs text-gray-500 flex items-center gap-1">
-                                      <MapPin className="w-2.5 h-2.5" />
-                                      {loc}
-                                    </li>
-                                  ))}
-                                </ul>
+                  {segment.stops && segment.stops.length > 0 && (
+                    <div className="mt-3 ml-4">
+                      <p className="text-sm font-medium text-gray-700 mb-1">
+                        Paradas interesantes:
+                      </p>
+                      <ul className="space-y-1">
+                        {segment.stops.map((stop, stopIndex) => (
+                          <li
+                            key={stopIndex}
+                            className="text-sm text-gray-600 flex items-start gap-2"
+                          >
+                            <MapPin className="w-3 h-3 mt-1 text-purple-500 shrink-0" />
+                            <div>
+                              <span className="font-medium">{stop.name}</span>
+                              {stop.description && (
+                                <span className="text-gray-500">
+                                  {" "}
+                                  — {stop.description}
+                                </span>
                               )}
                             </div>
-                          </div>
-                        </div>
-                      ))}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                  </div>
-                )}
-              </div>
-            ))}
+                  )}
+
+                  {segment.estimatedCost && (
+                    <div className="mt-2 ml-4 text-xs text-gray-500">
+                      Detalle: Peajes $
+                      {segment.estimatedCost.tolls?.toLocaleString("es-CL") ||
+                        0}{" "}
+                      • Combustible $
+                      {segment.estimatedCost.fuel?.toLocaleString("es-CL") ||
+                        0}{" "}
+                      • Otros $
+                      {segment.estimatedCost.other?.toLocaleString("es-CL") ||
+                        0}
+                    </div>
+                  )}
+
+                  {segment.rainAlternatives &&
+                    segment.rainAlternatives.length > 0 && (
+                      <div className="mt-4 ml-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <CloudRain className="w-4 h-4 text-blue-600" />
+                          <p className="text-sm font-medium text-blue-900">
+                            Alternativas si llueve
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {segment.rainAlternatives.map((alt, altIdx) => (
+                            <div
+                              key={altIdx}
+                              className="bg-white p-2 rounded border border-blue-100"
+                            >
+                              <div className="flex items-start gap-2">
+                                {alt.type === "indoor" && (
+                                  <Umbrella className="w-3 h-3 text-blue-600 mt-0.5 shrink-0" />
+                                )}
+                                {alt.type === "covered" && (
+                                  <Cloud className="w-3 h-3 text-blue-600 mt-0.5 shrink-0" />
+                                )}
+                                {alt.type === "alternative" && (
+                                  <Route className="w-3 h-3 text-blue-600 mt-0.5 shrink-0" />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-medium text-gray-800">
+                                    {alt.name}
+                                  </p>
+                                  <p className="text-xs text-gray-600 mt-0.5">
+                                    {alt.description}
+                                  </p>
+                                  {alt.locations && alt.locations.length > 0 && (
+                                    <ul className="mt-1 space-y-0.5">
+                                      {alt.locations.map((loc, locIdx) => (
+                                        <li
+                                          key={locIdx}
+                                          className="text-xs text-gray-500 flex items-center gap-1"
+                                        >
+                                          <MapPin className="w-2.5 h-2.5" />
+                                          {loc}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                </div>
+              ))}
 
             {itinerary.summary && (
               <div className="mt-6 pt-4 border-t border-gray-200">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-700">Resumen del viaje</p>
+                    <p className="text-sm font-medium text-gray-700">
+                      Resumen del viaje
+                    </p>
                     <p className="text-xs text-gray-500 mt-1">
                       Tiempo total: {itinerary.summary.totalEstimatedTime}
                     </p>
                   </div>
                   <div className="text-right">
                     <p className="text-lg font-bold text-emerald-700">
-                      ${itinerary.summary.totalEstimatedCost?.toLocaleString("es-CL") || 0} {itinerary.summary.currency || "CLP"}
+                      $
+                      {itinerary.summary.totalEstimatedCost?.toLocaleString(
+                        "es-CL"
+                      ) || 0}{" "}
+                      {itinerary.summary.currency || "CLP"}
                     </p>
-                    <p className="text-xs text-gray-500">Costo total estimado</p>
+                    <p className="text-xs text-gray-500">
+                      Costo total estimado
+                    </p>
                   </div>
                 </div>
               </div>
@@ -371,4 +434,3 @@ export default function Planificar() {
     </div>
   );
 }
-

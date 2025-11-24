@@ -1,27 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap');
+
 /* Reset general */
 body, html {
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: #f8f9fa;
   color: #222;
 }
 
-/* ⬇️ Cambiar esto: elimina el centrado forzado del root */
 #root {
-  /* display: flex;
-  flex-direction: column;
-  align-items: center; */   /* ❌ esto encoge el contenido */
-  display: block;            /* ✅ deja que los hijos ocupen todo el ancho */
+  display: block;
   width: 100%;
 }
 
-/* Anti scroll horizontal por si algún hijo se pasa de ancho */
 html, body {
   overflow-x: hidden;
 }
 
-/* 🏞️ Banner (no usado por el Home actual, lo dejo igual) */
 .banner {
   background: linear-gradient(135deg, #0099cc, #00b894);
   color: white;
@@ -32,9 +27,14 @@ html, body {
   width: 100%;
   border-radius: 8px;
   margin-top: 2rem;
+  font-family: 'Raleway', sans-serif;
 }
 
-.banner h1 { margin: 0; font-size: 2.5rem; }
+.banner h1 { 
+  margin: 0; 
+  font-size: 2.5rem; 
+  font-family: 'Raleway', sans-serif;
+}
 
 .content { max-width: 900px; width: 100%; margin-top: 1.5rem; padding: 0 1rem 2rem; }
 .section { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }

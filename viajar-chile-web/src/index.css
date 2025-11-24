@@ -1,6 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
-/* Opcional: utilidades propias */
-body { @apply bg-gray-50 text-gray-900 font-sans; }
-h1, h2, h3 { @apply font-semibold; }
-a { @apply text-teal-600 hover:text-teal-700; }
+/* === Fuerza Raleway en todo el sitio === */
+body {
+  @apply bg-gray-50 text-gray-900;
+  font-family: "Raleway", sans-serif !important;
+}
+
+h1, h2, h3 {
+  @apply font-semibold;
+}
+
+a {
+  @apply text-teal-600 hover:text-teal-700;
+}

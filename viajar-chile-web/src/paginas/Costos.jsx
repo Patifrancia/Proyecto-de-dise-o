@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { i18n } from "../i18n";
 import { Calculator, Plus, Trash2 } from "lucide-react";
+
 
 export default function Costos() {
   const [km, setKm] = useState("");
@@ -7,6 +9,13 @@ export default function Costos() {
   const [precio, setPrecio] = useState("1400"); // $/l
   const [nuevoPeaje, setNuevoPeaje] = useState("");
   const [peajes, setPeajes] = useState([]);
+  const [, setLang] = useState(i18n.lang);
+
+  useEffect(() => {
+    const onChange = () => setLang(i18n.lang);
+    window.addEventListener("langchange", onChange);
+    return () => window.removeEventListener("langchange", onChange);
+  }, []);
 
   // Calcular litros y totales
   const litros = km && rend ? Number(km) / Number(rend) : 0;
@@ -35,10 +44,10 @@ export default function Costos() {
             <Calculator className="w-6 h-6" />
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight">
-            Calcula tus costos
+            {i18n.t("costs_title")}
           </h1>
           <p className="text-gray-600 mt-2 text-sm sm:text-base">
-            Estima combustible y peajes de tu viaje 🚗
+            {i18n.t("costs_subtitle")}
           </p>
         </div>
 
@@ -46,21 +55,21 @@ export default function Costos() {
         <form className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Distancia total (km)
+              {i18n.t("costs_distance_label")}
             </label>
             <input
               value={km}
               onChange={(e) => setKm(e.target.value)}
               type="number"
               className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-2 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition"
-              placeholder="Ej: 350"
+              placeholder={i18n.t("costs_distance_placeholder")}
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Rendimiento (km/l)
+                {i18n.t("costs_efficiency_label")}
               </label>
               <input
                 value={rend}
@@ -71,7 +80,7 @@ export default function Costos() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Precio combustible ($/l)
+                {i18n.t("costs_price_label")}
               </label>
               <input
                 value={precio}
@@ -85,7 +94,7 @@ export default function Costos() {
           {/* Peajes dinámicos */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Peajes
+              {i18n.t("costs_tolls_label")}
             </label>
 
             {/* Input + botón agregar */}
@@ -94,7 +103,7 @@ export default function Costos() {
                 type="number"
                 value={nuevoPeaje}
                 onChange={(e) => setNuevoPeaje(e.target.value)}
-                placeholder="Monto del peaje"
+                placeholder={i18n.t("costs_tolls_placeholder")}
                 className="flex-1 rounded-xl border border-gray-300 px-3 py-2 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition"
               />
               <button
@@ -131,19 +140,19 @@ export default function Costos() {
         {/* Resultados */}
         <div className="mt-8 rounded-2xl bg-emerald-50 p-5 border border-emerald-100 text-gray-800">
           <p className="text-sm mb-1">
-            Litros estimados:{" "}
+            {i18n.t("costs_estimated_liters")}:{" "}
             <b>{litros ? litros.toFixed(1) : "0.0"} L</b>
           </p>
           <p className="text-sm mb-1">
-            Combustible:{" "}
+            {i18n.t("costs_estimated_fuel")}:{" "}
             <b>${Math.round(combustible).toLocaleString("es-CL")}</b>
           </p>
           <p className="text-sm mb-1">
-            Peajes:{" "}
+            {i18n.t("costs_estimated_tolls")}:{" "}
             <b>${Math.round(totalPeajes).toLocaleString("es-CL")}</b>
           </p>
           <p className="text-lg font-semibold text-emerald-700 mt-2">
-            Total estimado:{" "}
+            {i18n.t("costs_total_estimated")}:{" "}
             <b>${Math.round(total).toLocaleString("es-CL")}</b>
           </p>
         </div>

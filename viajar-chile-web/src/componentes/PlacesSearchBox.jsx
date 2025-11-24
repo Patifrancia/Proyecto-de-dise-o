@@ -1,22 +1,24 @@
+// src/componentes/PlacesSearchBox.jsx
 import { useState, useRef, useEffect } from "react";
 import { Search, MapPin, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { i18n } from "../i18n";
 
 const GOOGLE_PLACES_API_KEY = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
 
 /**
  * Componente de búsqueda con Google Places Autocomplete
- * 
+ *
  * @param {string} placeholder - Texto del placeholder
  * @param {Function} onSelect - Callback cuando se selecciona un lugar
  * @param {string} className - Clases CSS adicionales
  * @param {string} size - Tamaño del input ("lg" o "md")
  */
-export default function PlacesSearchBox({ 
-  placeholder = "Busca lugares en Chile...", 
+export default function PlacesSearchBox({
+  placeholder = i18n.t("search.placeholder"),
   onSelect,
   className = "",
-  size = "lg"
+  size = "lg",
 }) {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
@@ -35,27 +37,24 @@ export default function PlacesSearchBox({
   useEffect(() => {
     if (!GOOGLE_PLACES_API_KEY) {
       console.warn("VITE_GOOGLE_PLACES_API_KEY no está configurado");
-      setError("API key de Google Places no configurada");
+      setError(i18n.t("search.error_no_api"));
       return;
     }
 
-    // Verificar si ya está cargado
     if (window.google?.maps?.places) {
       initializeAutocomplete();
       return;
     }
 
-    // Verificar si el script ya existe
     const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
     if (existingScript) {
-      existingScript.addEventListener('load', initializeAutocomplete);
+      existingScript.addEventListener("load", initializeAutocomplete);
       if (window.google?.maps?.places) {
         initializeAutocomplete();
       }
       return;
     }
 
-    // Cargar el script de Google Maps
     const script = document.createElement("script");
     script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_PLACES_API_KEY}&libraries=places&language=es&region=cl`;
     script.async = true;
@@ -64,31 +63,28 @@ export default function PlacesSearchBox({
       initializeAutocomplete();
     };
     script.onerror = () => {
-      setError("Error al cargar Google Maps API");
+      setError(i18n.t("search.error_loading_api"));
       setLoading(false);
     };
     document.head.appendChild(script);
-
-    return () => {
-      // Limpiar si es necesario
-    };
   }, []);
 
   const initializeAutocomplete = () => {
     try {
       if (window.google?.maps?.places) {
-        autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
+        autocompleteServiceRef.current =
+          new window.google.maps.places.AutocompleteService();
         placesServiceRef.current = new window.google.maps.places.PlacesService(
           document.createElement("div")
         );
         setIsGoogleLoaded(true);
         setError("");
       } else {
-        setError("Google Maps API no se cargó correctamente");
+        setError(i18n.t("search.error_google_not_loaded"));
       }
     } catch (err) {
       console.error("Error inicializando Autocomplete:", err);
-      setError("Error al inicializar el servicio de búsqueda");
+      setError(i18n.t("search.error_init_autocomplete"));
     }
   };
 
@@ -113,26 +109,28 @@ export default function PlacesSearchBox({
         autocompleteServiceRef.current.getPlacePredictions(
           {
             input: query,
-            componentRestrictions: { country: "cl" }, // Solo Chile
+            componentRestrictions: { country: "cl" },
             language: "es",
-            types: ["(cities)", "geocode"], // Ciudades y direcciones
+            types: ["(cities)", "geocode"],
           },
           (predictions, status) => {
             setLoading(false);
-            
-            if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
+
+            const Status = window.google.maps.places.PlacesServiceStatus;
+
+            if (status === Status.OK && predictions) {
               setSuggestions(predictions);
               setShowSuggestions(true);
               setError("");
-            } else if (status === window.google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+            } else if (status === Status.ZERO_RESULTS) {
               setSuggestions([]);
               setShowSuggestions(true);
               setError("");
-            } else if (status === window.google.maps.places.PlacesServiceStatus.REQUEST_DENIED) {
-              setError("Acceso denegado. Verifica tu API key de Google Places");
+            } else if (status === Status.REQUEST_DENIED) {
+              setError(i18n.t("search.error_request_denied"));
               setSuggestions([]);
-            } else if (status === window.google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
-              setError("Límite de consultas excedido");
+            } else if (status === Status.OVER_QUERY_LIMIT) {
+              setError(i18n.t("search.error_over_limit"));
               setSuggestions([]);
             } else {
               console.warn("Estado de Places API:", status);
@@ -142,7 +140,7 @@ export default function PlacesSearchBox({
         );
       } catch (err) {
         console.error("Error en getPlacePredictions:", err);
-        setError("Error al buscar lugares");
+        setError(i18n.t("search.error_search"));
         setLoading(false);
         setSuggestions([]);
       }
@@ -175,7 +173,8 @@ export default function PlacesSearchBox({
           fields: ["name", "formatted_address", "geometry", "place_id"],
         },
         (place, status) => {
-          if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
+          const Status = window.google.maps.places.PlacesServiceStatus;
+          if (status === Status.OK && place) {
             const placeData = {
               id: place.place_id,
               name: place.name || prediction.description,
@@ -191,7 +190,6 @@ export default function PlacesSearchBox({
               navigate(`/buscar?q=${encodeURIComponent(placeData.name)}`);
             }
           } else {
-            // Fallback: usar solo la predicción
             const placeData = {
               id: prediction.place_id,
               name: prediction.description,
@@ -208,7 +206,6 @@ export default function PlacesSearchBox({
         }
       );
     } else {
-      // Fallback sin detalles
       const placeData = {
         id: prediction.place_id || `place-${Date.now()}`,
         name: prediction.description,
@@ -228,9 +225,7 @@ export default function PlacesSearchBox({
     e.preventDefault();
     const trimmedQuery = query.trim();
 
-    if (!trimmedQuery) {
-      return;
-    }
+    if (!trimmedQuery) return;
 
     if (selectedIndex >= 0 && suggestions[selectedIndex]) {
       handleSelect(suggestions[selectedIndex]);
@@ -253,25 +248,21 @@ export default function PlacesSearchBox({
   const handleKeyDown = (e) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setSelectedIndex(prev =>
+      setSelectedIndex((prev) =>
         prev < suggestions.length - 1 ? prev + 1 : prev
       );
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setSelectedIndex(prev => prev > 0 ? prev - 1 : -1);
+      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
     } else if (e.key === "Escape") {
       setShowSuggestions(false);
       setSelectedIndex(-1);
-    } else if (e.key === "Enter") {
-      if (query.trim()) {
-        return; // Let the form handle the submit
-      }
     }
+    // Enter lo maneja el form (onSubmit)
   };
 
-  const inputSizeClasses = size === "lg" 
-    ? "px-6 py-4 text-lg" 
-    : "px-4 py-2.5 text-base";
+  const inputSizeClasses =
+    size === "lg" ? "px-6 py-4 text-lg" : "px-4 py-2.5 text-base";
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
@@ -295,7 +286,7 @@ export default function PlacesSearchBox({
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             className={`w-full pl-12 pr-14 ${inputSizeClasses} rounded-2xl border-2 border-gray-200 bg-white text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 transition-all shadow-lg`}
-            aria-label="Buscar lugar"
+            aria-label={i18n.t("search.aria_label")}
           />
           {loading && (
             <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 text-emerald-600 w-5 h-5 animate-spin z-10" />
@@ -308,7 +299,7 @@ export default function PlacesSearchBox({
           {loading ? (
             <div className="px-4 py-8 text-center text-gray-500">
               <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
-              <p className="text-sm">Buscando lugares...</p>
+              <p className="text-sm">{i18n.t("search.loading")}</p>
             </div>
           ) : error ? (
             <div className="px-4 py-8 text-center text-red-500">
@@ -329,7 +320,8 @@ export default function PlacesSearchBox({
                   <MapPin className="text-emerald-600 w-5 h-5 mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-gray-900 truncate">
-                      {prediction.structured_formatting?.main_text || prediction.description}
+                      {prediction.structured_formatting?.main_text ||
+                        prediction.description}
                     </div>
                     {prediction.structured_formatting?.secondary_text && (
                       <div className="text-sm text-gray-500 truncate">
@@ -342,8 +334,10 @@ export default function PlacesSearchBox({
             </div>
           ) : query.trim() ? (
             <div className="px-4 py-8 text-center text-gray-500">
-              <p className="text-sm">No se encontraron lugares</p>
-              <p className="text-xs mt-1">Intenta con otro término de búsqueda</p>
+              <p className="text-sm">{i18n.t("search.no_results")}</p>
+              <p className="text-xs mt-1">
+                {i18n.t("search.no_results_hint")}
+              </p>
             </div>
           ) : null}
         </div>
@@ -351,10 +345,9 @@ export default function PlacesSearchBox({
 
       {!GOOGLE_PLACES_API_KEY && (
         <div className="mt-2 text-xs text-yellow-600 bg-yellow-50 px-3 py-2 rounded-lg">
-          ⚠️ Google Places API no configurada. Agrega VITE_GOOGLE_PLACES_API_KEY en .env
+          ⚠️ {i18n.t("search.warning_no_api")}
         </div>
       )}
     </div>
   );
 }
-
