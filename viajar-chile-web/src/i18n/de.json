@@ -9,7 +9,7 @@
   "whatYouCanDo": "Was kannst du auf {{brand}} tun?",
   "hero_description": "Entdecke alle Werkzeuge, die wir haben, um dir bei der Planung der perfekten Reise durch Chile zu helfen.",
   "plan": "Plane deine Routen",
-  "save": "Speichere deine Orte",
+  "save": "Gespeicherte Orte",
   "costs": "Kosten berechnen",
   "plan_desc": "Füge Ziele hinzu, ändere die Reihenfolge und sieh dir die gesamte Route an.",
   "save_desc": "Erstelle Favoriten oder Orte, die du später besuchen möchtest, und greife jederzeit darauf zu.",
@@ -49,7 +49,7 @@
   "plan_warning_too_many": "Die maximale Anzahl an Zielen für eine Reiseroute beträgt 5.",
   "plan_generate_button": "Itinerarium mit KI generieren",
 
-  "favorites_title": "Deine gespeicherten Orte",
+  "favorites_title": "Gespeicherte Orte",
   "favorites_greeting": "Hallo {{name}}, hier siehst du deine Favoriten.",
   "favorites_empty": "Du hast noch keine Favoriten. Füge einige über die Suche hinzu.",
 
@@ -100,6 +100,87 @@
 
     "error_required_fields": "Bitte fülle alle Felder aus.",
     "error_password_length": "Das Passwort muss mindestens 6 Zeichen lang sein.",
-    "error_password_mismatch": "Die Passwörter stimmen nicht überein."
-  }
+    "error_password_mismatch": "Passwörter stimmen nicht überein."
+  },
+
+  "plan_trip": "Reise planen",
+  "search_again": "Einen anderen Ort suchen",
+  "saved": "Gespeichert",
+  "save_button": "Speichern",
+  "place_type_city": "Stadt",
+  "place_type_region": "Region",
+  "search.no_results": "Keine Ergebnisse gefunden.",
+  "favorites_temp_title": "Deine lokal gespeicherten Favoriten",
+
+  "place_desc_vina_del_mar": "Viña del Mar ist eine Stadt in Valparaíso, Chile, bekannt für ihre Strände, das gemäßigte Klima und die Küstenlandschaft. Ideal zum Genießen des Meeres und zum Entspannen.",
+  "place_desc_valparaiso": "Valparaíso ist eine historische Hafenstadt an der Zentralküste Chiles, berühmt für ihre Kolonialarchitektur, malerischen Hügel und lebendiges Kulturleben.",
+  "place_desc_santiago": "Santiago ist die Hauptstadt Chiles, liegt im Zentraltal und ist das politische, wirtschaftliche und kulturelle Zentrum des Landes, umgeben von den Anden.",
+  "place_desc_atacama": "Die Atacama-Wüste ist eine der trockensten Wüsten der Welt mit surrealen Landschaften, Vulkanen und Sternenhimmel, perfekt für den Tourismus.",
+  "place_desc_torres_del_paine": "Torres del Paine ist ein Nationalpark in der chilenischen Patagonien, berühmt für seine Granitberge, Gletscher und Wanderwege von Weltklasse.",
+  "place_desc_moai": "Die Osterinsel ist berühmt für die mysteriösen Moái, monolithische Statuen der alten Rapa-Nui-Kultur. Ein einzigartiges Ziel im Pazifischen Ozean.",
+  "place_desc_maitencillo": "Maitencillo ist eine Küstengemeinde in Puchuncaví, Valparaíso, bekannt für ihre ruhigen Strände, Naturbecken und ländliche Landschaften. Perfekt für einen entspannten Kurzurlaub.",
+  "place_desc_valdivia": "Valdivia ist eine Stadt in der Region Los Ríos, bekannt für ihre Flüsse, deutsche Kolonialarchitektur und Gastronomie. Ein historisches und kulturelles Ziel im Süden Chiles.",
+  "place_desc_puerto_varas": "Puerto Varas ist eine Tourismusstadt in der Region Los Lagos, bekannt für ihre deutschen Kolonialhäuser, schwarze Sandstrände und Blick auf den Osorno.",
+  "place_desc_puerto_montt": "Puerto Montt ist die Hauptstadt der Region Los Lagos, bekannt für seinen historischen Hafen, Fischmarkt, typische Architektur und als Tor zur Patagonien.",
+  "place_desc_osorno": "Osorno ist eine Stadt in Los Lagos, umgeben von üppiger Natur und in der Nähe des Osorno-Vulkans. Ideal für Outdoor-Aktivitäten und Abenteuer.",
+  "place_desc_puerto_natales": "Puerto Natales ist eine kleine Stadt in Magallanes, Tor zu Torres del Paine. Perfekt für Entdecker und Naturliebhaber.",
+  "place_desc_punta_arenas": "Punta Arenas ist die südlichste Stadt Chiles, gelegen in der Region Magallanes. Startpunkt für Antarktis-Expeditionen und Abenteuerziel.",
+  "place_desc_antofagasta": "Antofagasta ist eine Hafenstadt im Norden Chiles, in der Nähe der Atacama-Wüste. Bekannt für ihre Strände und als Bergbau-Zentrum.",
+  "place_desc_iquique": "Iquique ist eine Küstenstadt im äußersten Norden Chiles, berühmt für ihr Casino, Strände, Nachtleben und Nähe zu Dünen und Oasen.",
+  "place_desc_arica": "Arica ist die nördlichste Stadt Chiles, gelegen in der Atacama-Wüste. Bietet wunderschöne Strände, tropisches Klima und archäologisches Erbe.",
+  "place_desc_la_serena": "La Serena ist eine Küstenstadt in der Region Coquimbo, bekannt für ihre Strände, Kolonialarchitektur und als Zentrum für astronomische Beobachtung.",
+  "place_desc_coquimbo": "Coquimbo ist eine Hafenstadt neben La Serena, berühmt für den monumentalen Leuchtturm und seine Strände. Wichtiges Tourismus- und Fischereiziel.",
+  "place_desc_rancagua": "Rancagua ist die Hauptstadt der Region Libertador General Bernardo O'Higgins, gelegen im Zentraltal. Bergbau- und Industriezentrum des Landes.",
+  "place_desc_talca": "Talca ist eine Stadt in Maule, Chiles Landwirtschafts- und Weinanbau-Zentrum. In der Nähe von Weingütern und bietet Weintouren.",
+  "place_desc_concepcion": "Concepción ist eine Stadt in Biobío, ein Industrie- und Universitätszentrum. In der Nähe von Stränden und natürlichen Zielen der Region.",
+  "place_desc_temuco": "Temuco ist die Hauptstadt der Region Araucanía, in der Nähe von Vulkanen, Seen und Nationalparks. Kultur- und Geschichtszentrum der Gegend.",
+  "place_desc_villarrica": "Villarrica ist ein Touristenstädtchen in Araucanía, berühmt für den Vulkan Villarrica, kristallklare Seen und Abenteuersportarten.",
+  "place_desc_chillan": "Chillán ist eine Stadt in Ñuble, bekannt für ihre Thermalquellen, ihren Markt und als Zugangsort zum Vulkan Chillán.",
+  "place_desc_frutillar": "Frutillar ist ein malerisches Städtchen in Los Lagos, bekannt für seine deutsche Architektur, Theater, Kultur und Blick auf den Osorno-Vulkan.",
+  "place_desc_puerto_octay": "Puerto Octay ist ein Städtchen in Los Lagos, umgeben von Natur, mit Zugang zu Seen und Vulkanen. Ideal für Ökotourismus-Aktivitäten.",
+  "place_desc_los_angeles": "Los Ángeles ist eine Stadt in Biobío, im Herzen der Araucanía. Handels- und Kulturzentrum der Gegend, in der Nähe von Naturschutzgebieten.",
+  
+  "place_desc_calama": "Calama ist eine Stadt in der Atacama-Wüste, Tor zu San Pedro de Atacama. Wichtiges Bergbauzentrum und Basis zur Erkundung des ariden Nordens.",
+  "place_desc_copiapo": "Copiapó ist die Hauptstadt der Region Atacama, gelegen in der Wüste. Historisches und kulturelles Zentrum mit Zugang zu Bergbauparks und ariden Landschaften.",
+  "place_desc_ovalle": "Ovalle ist eine Stadt in Coquimbo, in der Nähe fruchtbarer Täler und Strände. Landwirtschaftliches und gastronomisches Zentrum mit Zugang zu nahegelegenen Zielen.",
+  
+  "place_desc_concon": "Concón ist ein Strand in Valparaíso, berühmt für seine Thermalquellen und erodierten Felsen. Perfekt, um das Meer und die Natur zu genießen.",
+  "place_desc_papudo": "Papudo ist ein malerischer Strand in Valparaíso, bekannt für seinen Frieden, ruhige Strände und entspannende Atmosphäre. Ideal, um dem Massentourismus zu entgehen.",
+  "place_desc_zapallar": "Zapallar ist ein exklusiver Strand in Valparaíso, berühmt für seine Exklusivität, goldenen Sandstrände und üppige Vegetation.",
+  "place_desc_cachagua": "Cachagua ist ein Strand in Valparaíso, bekannt für seine Naturschönheit, Alte Insel mit Meeresfauna und ruhiger Atmosphäre.",
+  "place_desc_quintero": "Quintero ist ein Strand in Valparaíso, mit leichtem Zugang von Santiago. Bietet wunderschöne Strände und vielfältige Wassersportarten.",
+  "place_desc_algarrobo": "Algarrobo ist ein Strand in O'Higgins, berühmt für das Huaso-Schloss und seine familienfreundlichen Strände. Traditionelles Touristenziel.",
+  "place_desc_el_quisco": "El Quisco ist ein Strand in O'Higgins, in der Nähe von Algarrobo. Bekannt für ruhige Strände und Küstenortstatmosphäre.",
+  "place_desc_cartagena": "Cartagena ist ein Strand in Valparaíso, mit leichtem Zugang von Santiago. Bietet familienfreundliche Strände und klassische Sommeratmosphäre.",
+  "place_desc_san_antonio": "San Antonio ist ein Hafen in O'Higgins, wichtiges Fischereizentrum. Bietet Hafenerlebnis, Fischmarktfeste und Zugang zu nahegelegenen Stränden.",
+  "place_desc_san_fernando": "San Fernando ist eine Stadt in O'Higgins, in der Nähe von Stränden und Weingütern. Touristisches Zentrum mit Zugang zu ländlichen und Küstenlandschaften.",
+  
+  "place_desc_curico": "Curicó ist eine Stadt in Maule, wichtiges landwirtschaftliches und Weinanbau-Zentrum. Basis zur Erkundung von Weingütern und ländlichen Tallandschaften.",
+  "place_desc_talcahuano": "Talcahuano ist ein Hafen in Biobío, wichtiges Industrie- und Fischereizentrum. Zugangsort zu nahegelegenen Küstzielen.",
+  "place_desc_tome": "Tomé ist ein Strand in Biobío, berühmt für seine Thermalquellen und künstlerischen Murals. Kulturelles Ziel mit bohemischer Atmosphäre.",
+  "place_desc_lota": "Lota ist ein Strand in Biobío, mit wichtiger Bergbaugeschichte. Bietet Küstenlandschaften und industrielles Erbe aus der Vergangenheit.",
+  "place_desc_tirua": "Tirúa ist ein Strand in Biobío, bekannt für Ruhe und Naturschönheit. Ideal zur Erholung und zum Kontakt mit der Natur.",
+  
+  "place_desc_pucon": "Pucón ist eine Tourismusstadt in Araucanía, berühmt für den Villarrica-Vulkan, den Villarrica-See und extreme Abenteuersportarten.",
+  "place_desc_nacimiento": "Nacimiento ist eine Stadt in Biobío, in der Nähe von Naturschutzgebieten und Parks mit einzigartiger Biodiversität.",
+  "place_desc_corral": "Corral ist eine Stadt in Los Ríos, in der Nähe von Valdivia. Bekannt für ihre historische Festung und Panoramablick auf den Calle-Calle-Fluss.",
+  "place_desc_niebla": "Niebla ist eine Stadt in Los Ríos, an der Mündung des Calle-Calle-Flusses. Bietet ruhige Strände und Zugang zur Flussnatur.",
+  "place_desc_pucatrihue": "Pucatrihue ist ein Strand in Los Ríos, bekannt für Naturschönheit und ruhige Atmosphäre. Ideal für Familien, die Frieden suchen.",
+  
+  "place_desc_llanquihue": "Llanquihue ist eine Stadt in Los Lagos, in der Nähe wunderschöner Seen und Vulkane. Perfekt für Outdoor-Aktivitäten und Naturtourismus.",
+  "place_desc_piedras_blancas": "Piedras Blancas ist ein Strand in Los Lagos, berühmt für weiße Felsformationen und spektakuläre Ausblicke auf den Osorno-Vulkan.",
+  "place_desc_puyehue": "Puyehue ist eine Ortschaft in Los Lagos, in der Nähe des Nationalparks Puyehue. Bietet Thermalquellen, Seen und Zugang zu Naturschutzgebieten.",
+  
+  "place_desc_ancud": "Ancud ist eine Stadt in Chiloé, bekannt für seine historische Festung, Holzkirchen und einzigartige lokale Gastronomie.",
+  "place_desc_dalcahue": "Dalcahue ist eine Stadt in Chiloé, berühmt für seine Holzkirche und traditionelle Märkte mit authentischen Lokalprodukten.",
+  "place_desc_castro": "Castro ist die Hauptstadt Chiloés, auf einem einzigartigen Archipel gelegen. Bekannt für die San-Francisco-Kirche (UNESCO-Welterbe) und Pfahlbauten.",
+  "place_desc_quellon": "Quellón ist eine Stadt südlich von Chiloé, Startpunkt der Carretera Austral. Bietet authentische Chiloé-Erfahrung und Gastronomie.",
+  
+  "place_desc_puerto_williams": "Puerto Williams ist der südlichste Hafen der Welt, gelegen in Feuerland. Startpunkt für Antarktis-Expeditionen und extreme Abenteuer.",
+  
+  "place_desc_juan_fernandez": "Juan Fernández ist ein Archipel im Pazifik, berühmt für seine einzigartige Biodiversität und als Ort, wo Robinson Crusoe lebte.",
+  "place_desc_archipelago": "Das Chiloé-Archipel ist eine Gruppe von Inseln in Los Lagos, berühmt für Pfahlbauarchitektur, Holzkirchen und einzigartige Kultur.",
+  "place_desc_pan_azucar": "Pan de Azúcar ist ein Nationalpark in Antofagasta, bekannt für weiße Sanddünen, die sich von Felsklippen abheben.",
+  "place_desc_punta_choros": "Punta de Choros ist eine Ortschaft in Coquimbo, Tor zu geschützten Inseln mit einzigartiger Meeresfauna wie Humboldt-Pinguinen.",
+  "place_desc_san_pedro_atacama": "San Pedro de Atacama ist eine Stadt im Herzen der Atacama-Wüste, Basis zur Erkundung surrealer Landschaften und Geysire."
 }
