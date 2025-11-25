@@ -76,7 +76,6 @@ export default function Home() {
     "puyehue": "place_desc_puyehue",
     
     // Zona Sur Austral
-    "puerto varas": "place_desc_puerto_varas",
     "ancud": "place_desc_ancud",
     "dalcahue": "place_desc_dalcahue",
     "castro": "place_desc_castro",
@@ -85,9 +84,6 @@ export default function Home() {
     "torres del paine": "place_desc_torres_del_paine",
     "punta arenas": "place_desc_punta_arenas",
     "puerto williams": "place_desc_puerto_williams",
-    
-    // Zona Norte Extrema
-    "arica": "place_desc_arica",
     
     // Islas
     "isla de pascua": "place_desc_moai",

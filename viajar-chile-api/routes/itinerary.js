@@ -5,6 +5,11 @@ import { generateItineraryWithAI } from "../services/ai.js";
 
 const router = Router();
 
+// Ruta de prueba para verificar que el router funciona
+router.get("/test", (_req, res) => {
+  res.json({ message: "Itinerary route is working!" });
+});
+
 /**
  * POST /api/itinerary/generate
  * 
@@ -20,7 +25,7 @@ const router = Router();
  * - summary: resumen del viaje completo
  */
 router.post("/generate", async (req, res) => {
-  const { destinations } = req.body;
+  const { destinations, language = "es" } = req.body;
 
   // Validar que haya entre 2 y 5 destinos
   if (!Array.isArray(destinations) || destinations.length < 2 || destinations.length > 5) {
@@ -29,8 +34,12 @@ router.post("/generate", async (req, res) => {
     });
   }
 
+  // Validar idioma (solo permitir es, en, de)
+  const validLanguages = ["es", "en", "de"];
+  const lang = validLanguages.includes(language) ? language : "es";
+
   try {
-    console.log(`🤖 Generando itinerario con IA para ${destinations.length} destinos...`);
+    console.log(`🤖 Generando itinerario con IA para ${destinations.length} destinos en idioma: ${lang}...`);
     console.log(`📍 Destinos: ${destinations.map(d => d.name).join(" → ")}`);
     
     // Verificar que haya API key configurada
@@ -41,8 +50,8 @@ router.post("/generate", async (req, res) => {
       });
     }
     
-    // Generar itinerario usando IA
-    const itinerary = await generateItineraryWithAI(destinations);
+    // Generar itinerario usando IA con el idioma especificado
+    const itinerary = await generateItineraryWithAI(destinations, lang);
     
     // Validar estructura básica
     if (!itinerary.segments || !itinerary.summary) {

@@ -35,10 +35,37 @@ console.log("🔎 MONGODB_URI leída:", JSON.stringify(safeUri));
 console.log("🔎 Esquema válido (mongodb/mongodb+srv):", schemeOk);
 
 /* ========= Middlewares ========= */
+// Configurar CORS para permitir el frontend
+const allowedOrigins = CLIENT_ORIGIN 
+  ? CLIENT_ORIGIN.split(',').map(origin => origin.trim())
+  : ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5173/"];
+
 app.use(
   cors({
-    origin: CLIENT_ORIGIN || "http://localhost:5173",
+    origin: function (origin, callback) {
+      // Permitir requests sin origin (como Postman o curl)
+      if (!origin) return callback(null, true);
+      
+      // Normalizar el origin (remover trailing slash)
+      const normalizedOrigin = origin.replace(/\/$/, '');
+      const normalizedAllowed = allowedOrigins.map(o => o.replace(/\/$/, ''));
+      
+      if (normalizedAllowed.includes(normalizedOrigin)) {
+        callback(null, true);
+      } else {
+        // Permitir cualquier origen en desarrollo si no está configurado
+        if (!CLIENT_ORIGIN) {
+          console.log(`⚠️  Permitiendo origen no configurado: ${origin}`);
+          callback(null, true);
+        } else {
+          console.log(`❌ Origen bloqueado por CORS: ${origin}`);
+          callback(new Error('Not allowed by CORS'));
+        }
+      }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 app.use(express.json());

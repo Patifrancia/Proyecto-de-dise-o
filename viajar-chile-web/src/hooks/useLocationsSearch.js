@@ -41,23 +41,17 @@ export function useLocationsSearch(query, debounceMs = 300) {
       setError(null);
 
       try {
-        // Intentar primero con el endpoint específico de localidades
-        // Si no existe, usar /api/ciudades como fallback
-        let response = await fetch(
-          `/api/locations/search?q=${encodeURIComponent(query)}`,
+        // Usar directamente el endpoint de ciudades (el endpoint /api/locations/search no existe)
+        const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+        const normalizedApiUrl = API_URL.replace(/\/+$/, ""); // Remover barras finales
+        
+        const response = await fetch(
+          `${normalizedApiUrl}/api/ciudades?query=${encodeURIComponent(query)}`,
           { signal }
         );
-
-        // Si el endpoint no existe (404) o hay error, usar el endpoint de ciudades
+        
         if (!response.ok) {
-          response = await fetch(
-            `/api/ciudades?query=${encodeURIComponent(query)}`,
-            { signal }
-          );
-          
-          if (!response.ok) {
-            throw new Error(`Error ${response.status}: ${response.statusText}`);
-          }
+          throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
 
         // Verificar que la respuesta tenga contenido antes de parsear

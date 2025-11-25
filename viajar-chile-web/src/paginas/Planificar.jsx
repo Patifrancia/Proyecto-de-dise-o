@@ -17,7 +17,12 @@ import {
 import LocationsSearchBox from "../componentes/LocationsSearchBox";
 import { i18n } from "../i18n";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+// Normalizar API_URL para evitar dobles barras
+const getApiUrl = () => {
+  const url = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+  return url.replace(/\/+$/, ""); // Remover barras finales
+};
+const API_URL = getApiUrl();
 
 export default function Planificar() {
   const navigate = useNavigate();
@@ -103,13 +108,28 @@ export default function Planificar() {
         },
         body: JSON.stringify({
           destinations: stops,
+          language: i18n.lang, // Enviar el idioma actual
         }),
+      }).catch((fetchError) => {
+        // Capturar errores de red (servidor no disponible, CORS, etc.)
+        console.error("Error de red al generar itinerario:", fetchError);
+        console.error("URL intentada:", `${API_URL}/api/itinerary/generate`);
+        console.error("Tipo de error:", fetchError.name);
+        console.error("Mensaje:", fetchError.message);
+        
+        // Mensaje más específico según el tipo de error
+        if (fetchError.name === 'TypeError' && fetchError.message.includes('Failed to fetch')) {
+          throw new Error(
+            `No se pudo conectar con el servidor. Verifica que el backend esté corriendo en ${API_URL}. Error: ${fetchError.message}`
+          );
+        }
+        throw fetchError;
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
-          errorData.message ||
+          errorData.message || errorData.error ||
             `Error ${response.status}: ${response.statusText}`
         );
       }
@@ -261,13 +281,13 @@ export default function Planificar() {
         </section>
       </div>
 
-      {/* ITINERARIO GENERADO (lo dejamos en español por ahora) */}
+      {/* ITINERARIO GENERADO */}
       {itinerary && (
         <section className="mt-6 rounded-2xl border bg-white shadow-md p-6">
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="text-purple-600" />
             <h2 className="text-lg font-semibold text-gray-800">
-              Itinerario Generado
+              {i18n.t("itinerary_title")}
             </h2>
           </div>
 
@@ -286,18 +306,18 @@ export default function Planificar() {
                       <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                         <div className="flex items-center gap-1">
                           <Clock className="w-4 h-4" />
-                          <span>Salida: {segment.departureTime}</span>
+                          <span>{i18n.t("itinerary_departure")}: {segment.departureTime}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Navigation className="w-4 h-4" />
-                          <span>Tiempo: {segment.estimatedTime}</span>
+                          <span>{i18n.t("itinerary_time")}: {segment.estimatedTime}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <DollarSign className="w-4 h-4" />
                           <span>
-                            Costo: $
+                            {i18n.t("itinerary_cost")}: $
                             {segment.estimatedCost?.total?.toLocaleString(
-                              "es-CL"
+                              i18n.lang === "es" ? "es-CL" : i18n.lang === "de" ? "de-DE" : "en-US"
                             ) || 0}{" "}
                             {segment.estimatedCost?.currency || "CLP"}
                           </span>
@@ -309,7 +329,7 @@ export default function Planificar() {
                   {segment.stops && segment.stops.length > 0 && (
                     <div className="mt-3 ml-4">
                       <p className="text-sm font-medium text-gray-700 mb-1">
-                        Paradas interesantes:
+                        {i18n.t("itinerary_interesting_stops")}:
                       </p>
                       <ul className="space-y-1">
                         {segment.stops.map((stop, stopIndex) => (
@@ -335,15 +355,18 @@ export default function Planificar() {
 
                   {segment.estimatedCost && (
                     <div className="mt-2 ml-4 text-xs text-gray-500">
-                      Detalle: Peajes $
-                      {segment.estimatedCost.tolls?.toLocaleString("es-CL") ||
-                        0}{" "}
-                      • Combustible $
-                      {segment.estimatedCost.fuel?.toLocaleString("es-CL") ||
-                        0}{" "}
-                      • Otros $
-                      {segment.estimatedCost.other?.toLocaleString("es-CL") ||
-                        0}
+                      {i18n.t("itinerary_cost_detail")}: {i18n.t("itinerary_tolls")} $
+                      {segment.estimatedCost.tolls?.toLocaleString(
+                        i18n.lang === "es" ? "es-CL" : i18n.lang === "de" ? "de-DE" : "en-US"
+                      ) || 0}{" "}
+                      • {i18n.t("itinerary_fuel")} $
+                      {segment.estimatedCost.fuel?.toLocaleString(
+                        i18n.lang === "es" ? "es-CL" : i18n.lang === "de" ? "de-DE" : "en-US"
+                      ) || 0}{" "}
+                      • {i18n.t("itinerary_other")} $
+                      {segment.estimatedCost.other?.toLocaleString(
+                        i18n.lang === "es" ? "es-CL" : i18n.lang === "de" ? "de-DE" : "en-US"
+                      ) || 0}
                     </div>
                   )}
 
@@ -353,7 +376,7 @@ export default function Planificar() {
                         <div className="flex items-center gap-2 mb-2">
                           <CloudRain className="w-4 h-4 text-blue-600" />
                           <p className="text-sm font-medium text-blue-900">
-                            Alternativas si llueve
+                            {i18n.t("itinerary_rain_alternatives")}
                           </p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -407,22 +430,22 @@ export default function Planificar() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-700">
-                      Resumen del viaje
+                      {i18n.t("itinerary_summary")}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      Tiempo total: {itinerary.summary.totalEstimatedTime}
+                      {i18n.t("itinerary_total_time")}: {itinerary.summary.totalEstimatedTime}
                     </p>
                   </div>
                   <div className="text-right">
                     <p className="text-lg font-bold text-emerald-700">
                       $
                       {itinerary.summary.totalEstimatedCost?.toLocaleString(
-                        "es-CL"
+                        i18n.lang === "es" ? "es-CL" : i18n.lang === "de" ? "de-DE" : "en-US"
                       ) || 0}{" "}
                       {itinerary.summary.currency || "CLP"}
                     </p>
                     <p className="text-xs text-gray-500">
-                      Costo total estimado
+                      {i18n.t("itinerary_total_cost")}
                     </p>
                   </div>
                 </div>
