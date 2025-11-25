@@ -46,6 +46,7 @@ export default function Login() {
           correo: form.email.trim(),
           password: form.password,
         }),
+        credentials: "include", // 👈 importante para que se guarden cookies
       });
 
       const data = await res.json().catch(() => ({}));
@@ -61,6 +62,7 @@ export default function Login() {
         throw new Error(backendMsg);
       }
 
+      // Mantenemos también localStorage como ya lo tenías
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
@@ -126,6 +128,7 @@ export default function Login() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ credential: response.credential }),
+        credentials: "include", // 👈 también aquí para cookies
       });
 
       const data = await res.json().catch(() => ({}));
@@ -159,7 +162,9 @@ export default function Login() {
       };
 
       const script = document.createElement("script");
-      script.src = `https://accounts.google.com/gsi/client?hl=${langMap[i18n.lang] || "es_ES"}`;
+      script.src = `https://accounts.google.com/gsi/client?hl=${
+        langMap[i18n.lang] || "es_ES"
+      }`;
       script.async = true;
       script.defer = true;
       script.onload = resolve;
@@ -241,8 +246,8 @@ export default function Login() {
         {GOOGLE_CLIENT_ID && (
           <>
             <div className="mt-6">
-              <div 
-                id="google-signin-button" 
+              <div
+                id="google-signin-button"
                 className="w-full"
                 data-lang={i18n.lang}
               />

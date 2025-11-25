@@ -5,14 +5,45 @@ import { OAuth2Client } from "google-auth-library";
 import User from "../models/User.js";
 
 const router = Router();
-const sign = (id) => jwt.sign({ uid: id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-// ===== Middleware: requiere JWT (Authorization: Bearer <token>) =====
+// Nombre de la cookie donde se guardará el JWT
+const COOKIE_NAME = "auth_token";
+
+// Función para firmar el JWT
+const sign = (id) =>
+  jwt.sign({ uid: id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+// Función para setear la cookie de autenticación
+function setAuthCookie(res, token) {
+  const isProd = process.env.NODE_ENV === "production";
+
+  res.cookie(COOKIE_NAME, token, {
+    httpOnly: true,                     // no accesible desde JS (más seguro)
+    secure: isProd,                     // solo HTTPS en producción
+    sameSite: isProd ? "none" : "lax",  // para front/back en dominios distintos
+    maxAge: 7 * 24 * 60 * 60 * 1000,    // 7 días
+  });
+}
+
+// ===== Middleware: requiere JWT (Authorization: Bearer <token> o cookie) =====
 function authRequired(req, res, next) {
   try {
+    let token;
+
+    // 1) Intentar sacar el token del header Authorization
     const h = req.headers.authorization || "";
-    const [, token] = h.split(" ");
+    const parts = h.split(" ");
+    if (parts[0] === "Bearer" && parts[1]) {
+      token = parts[1];
+    }
+
+    // 2) Si no hay en el header, intentar desde la cookie
+    if (!token && req.cookies && req.cookies[COOKIE_NAME]) {
+      token = req.cookies[COOKIE_NAME];
+    }
+
     if (!token) return res.status(401).json({ error: "Token requerido" });
+
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     req.uid = payload.uid;
     next();
@@ -30,18 +61,25 @@ router.post("/register", async (req, res) => {
     }
 
     if (password.length < 6) {
-      return res.status(400).json({ error: "La contraseña debe tener al menos 6 caracteres" });
+      return res.status(400).json({
+        error: "La contraseña debe tener al menos 6 caracteres",
+      });
     }
 
     const existe = await User.findOne({ correo });
-    if (existe) return res.status(409).json({ error: "El correo ya está registrado" });
+    if (existe)
+      return res.status(409).json({ error: "El correo ya está registrado" });
 
     const passwordHash = await bcrypt.hash(password, 12);
     const user = await User.create({ nombre, correo, passwordHash });
 
+    const token = sign(user.id);
+    // Guardamos el token en cookie
+    setAuthCookie(res, token);
+
     return res.status(201).json({
       user: { id: user.id, nombre: user.nombre, correo: user.correo },
-      token: sign(user.id),
+      token, // mantenemos también el token en el JSON para compatibilidad
     });
   } catch (e) {
     console.error("Error en registro:", e);
@@ -61,15 +99,22 @@ router.post("/login", async (req, res) => {
 
     // Si el usuario se registró con Google, no tiene passwordHash
     if (!user.passwordHash) {
-      return res.status(401).json({ error: "Esta cuenta se registró con Google. Usa el botón de Google para iniciar sesión." });
+      return res.status(401).json({
+        error:
+          "Esta cuenta se registró con Google. Usa el botón de Google para iniciar sesión.",
+      });
     }
 
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) return res.status(401).json({ error: "Credenciales inválidas" });
 
+    const token = sign(user.id);
+    // Guardamos el token en cookie
+    setAuthCookie(res, token);
+
     return res.json({
       user: { id: user.id, nombre: user.nombre, correo: user.correo },
-      token: sign(user.id),
+      token, // también lo devolvemos como antes
     });
   } catch (e) {
     return res.status(500).json({ error: "Error en el servidor" });
@@ -86,7 +131,7 @@ router.post("/google/callback", async (req, res) => {
 
     // Verificar el token de Google usando google-auth-library
     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-    
+
     let ticket;
     try {
       ticket = await client.verifyIdToken({
@@ -100,14 +145,16 @@ router.post("/google/callback", async (req, res) => {
 
     const payload = ticket.getPayload();
     const { email, name, picture, sub: googleId } = payload;
-    
+
     if (!email) {
-      return res.status(400).json({ error: "No se pudo obtener el correo de Google" });
+      return res
+        .status(400)
+        .json({ error: "No se pudo obtener el correo de Google" });
     }
 
     // Buscar o crear usuario
     let user = await User.findOne({ correo: email.toLowerCase() });
-    
+
     if (user) {
       // Si existe, actualizar googleId y avatar si no los tiene
       if (!user.googleId) {
@@ -120,7 +167,7 @@ router.post("/google/callback", async (req, res) => {
     } else {
       // Crear nuevo usuario
       user = await User.create({
-        nombre: name || email.split('@')[0],
+        nombre: name || email.split("@")[0],
         correo: email.toLowerCase(),
         googleId: googleId,
         avatar: picture,
@@ -128,14 +175,18 @@ router.post("/google/callback", async (req, res) => {
       });
     }
 
+    const token = sign(user.id);
+    // Guardamos el token en cookie
+    setAuthCookie(res, token);
+
     return res.json({
-      user: { 
-        id: user.id, 
-        nombre: user.nombre, 
+      user: {
+        id: user.id,
+        nombre: user.nombre,
         correo: user.correo,
         avatar: user.avatar,
       },
-      token: sign(user.id),
+      token, // también en cuerpo por compatibilidad
     });
   } catch (e) {
     console.error("Error en Google callback:", e);
@@ -152,7 +203,9 @@ router.get("/users", authRequired, async (_req, res) => {
 // ===== Read (by id) =====
 router.get("/users/:id", authRequired, async (req, res) => {
   try {
-    const u = await User.findById(req.params.id).select("nombre correo createdAt updatedAt");
+    const u = await User.findById(req.params.id).select(
+      "nombre correo createdAt updatedAt"
+    );
     if (!u) return res.status(404).json({ error: "Usuario no encontrado" });
     return res.json(u);
   } catch {
@@ -174,12 +227,17 @@ router.put("/users/:id", authRequired, async (req, res) => {
 
     // si cambia el correo, validar que no esté usado por otro
     if (data.correo) {
-      const repetido = await User.findOne({ correo: data.correo, _id: { $ne: req.params.id } });
-      if (repetido) return res.status(409).json({ error: "El correo ya está en uso" });
+      const repetido = await User.findOne({
+        correo: data.correo,
+        _id: { $ne: req.params.id },
+      });
+      if (repetido)
+        return res.status(409).json({ error: "El correo ya está en uso" });
     }
 
-    const u = await User.findByIdAndUpdate(req.params.id, data, { new: true })
-      .select("nombre correo updatedAt");
+    const u = await User.findByIdAndUpdate(req.params.id, data, {
+      new: true,
+    }).select("nombre correo updatedAt");
     if (!u) return res.status(404).json({ error: "Usuario no encontrado" });
 
     return res.json(u);
@@ -200,4 +258,3 @@ router.delete("/users/:id", authRequired, async (req, res) => {
 });
 
 export default router;
-

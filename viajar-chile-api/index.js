@@ -3,6 +3,7 @@ import "dotenv/config.js";
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 // 🔹 Importar routers
 import authRoutes from "./routes/auth.js";
@@ -13,31 +14,37 @@ import ciudadesRoutes from "./routes/ciudades.js";
 import itineraryRoutes from "./routes/itinerary.js";
 import favoritesRoutes from "./routes/favorites.js";
 
-
-
 const app = express();
 
 /* ========= Validaciones de entorno ========= */
-const { PORT = 3000, CLIENT_ORIGIN, MONGODB_URI, MONGODB_DB = "rutacl" } = process.env;
+const { PORT = 3000, CLIENT_ORIGIN, MONGODB_URI, MONGODB_DB = "rutacl" } =
+  process.env;
 
 if (!MONGODB_URI) {
   console.error("❌ Falta MONGODB_URI en tu archivo .env");
   process.exit(1);
 }
 if (!CLIENT_ORIGIN) {
-  console.warn("⚠️  No se definió CLIENT_ORIGIN en .env (usando http://localhost:5173 por defecto)");
+  console.warn(
+    "⚠️  No se definió CLIENT_ORIGIN en .env (usando http://localhost:5173 por defecto)"
+  );
 }
 
 /* ========= Diagnóstico de la URI ========= */
-const safeUri = MONGODB_URI.replace(/\/\/([^:]+):[^@]+@/, "//$1:<hidden>@");
-const schemeOk = MONGODB_URI.startsWith("mongodb://") || MONGODB_URI.startsWith("mongodb+srv://");
+const safeUri = MONGODB_URI.replace(
+  /\/\/([^:]+):[^@]+@/,
+  "//$1:<hidden>@"
+);
+const schemeOk =
+  MONGODB_URI.startsWith("mongodb://") ||
+  MONGODB_URI.startsWith("mongodb+srv://");
 console.log("🔎 MONGODB_URI leída:", JSON.stringify(safeUri));
 console.log("🔎 Esquema válido (mongodb/mongodb+srv):", schemeOk);
 
 /* ========= Middlewares ========= */
 // Configurar CORS para permitir el frontend
-const allowedOrigins = CLIENT_ORIGIN 
-  ? CLIENT_ORIGIN.split(',').map(origin => origin.trim())
+const allowedOrigins = CLIENT_ORIGIN
+  ? CLIENT_ORIGIN.split(",").map((origin) => origin.trim())
   : ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5173/"];
 
 app.use(
@@ -45,11 +52,13 @@ app.use(
     origin: function (origin, callback) {
       // Permitir requests sin origin (como Postman o curl)
       if (!origin) return callback(null, true);
-      
+
       // Normalizar el origin (remover trailing slash)
-      const normalizedOrigin = origin.replace(/\/$/, '');
-      const normalizedAllowed = allowedOrigins.map(o => o.replace(/\/$/, ''));
-      
+      const normalizedOrigin = origin.replace(/\/$/, "");
+      const normalizedAllowed = allowedOrigins.map((o) =>
+        o.replace(/\/$/, "")
+      );
+
       if (normalizedAllowed.includes(normalizedOrigin)) {
         callback(null, true);
       } else {
@@ -59,16 +68,18 @@ app.use(
           callback(null, true);
         } else {
           console.log(`❌ Origen bloqueado por CORS: ${origin}`);
-          callback(new Error('Not allowed by CORS'));
+          callback(new Error("Not allowed by CORS"));
         }
       }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 app.use(express.json());
+app.use(cookieParser());
 
 /* ========= Rutas ========= */
 app.get("/", (_req, res) => {
@@ -87,7 +98,6 @@ app.use("/api/hotels", hotelsRoutes); // Búsqueda de hoteles (Booking específi
 app.use("/api/itinerary", itineraryRoutes); // Generación de itinerarios con IA
 app.use("/api/favorites", favoritesRoutes); // Gestión de lugares favoritos
 
-
 /* ========= Conexión a MongoDB ========= */
 let isConnected = false;
 
@@ -99,7 +109,7 @@ async function connectDB() {
 
   try {
     mongoose.set("strictQuery", true);
-    await mongoose.connect(MONGODB_URI, { 
+    await mongoose.connect(MONGODB_URI, {
       dbName: MONGODB_DB,
       // Opciones para serverless (Vercel)
       serverSelectionTimeoutMS: 5000,
@@ -115,7 +125,7 @@ async function connectDB() {
 }
 
 // Conectar a MongoDB antes de manejar requests
-connectDB().catch(err => {
+connectDB().catch((err) => {
   console.error("Error inicial de conexión a MongoDB:", err);
 });
 
@@ -125,9 +135,9 @@ app.use(async (req, res, next) => {
     try {
       await connectDB();
     } catch (err) {
-      return res.status(500).json({ 
+        return res.status(500).json({
         error: "Error de conexión a la base de datos",
-        message: err.message 
+        message: err.message,
       });
     }
   }

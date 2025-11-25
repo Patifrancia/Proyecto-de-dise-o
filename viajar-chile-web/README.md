@@ -8,6 +8,8 @@ Dependencias que hay que instalar en backend:
 npm i bcryptjs jsonwebtoken
 npm install axios
 npm install express mongoose dotenv cors bcryptjs jsonwebtoken
+npm install cookie-parser
+
 
 
 
