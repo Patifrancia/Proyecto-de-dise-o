@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { i18n } from "../i18n";
 import HomeSearchPlace from "../componentes/HomeSearchPlace";
 import { MapPin, Heart } from "lucide-react";
+import { API_URL } from "../config/env.js";
 
 export default function Home() {
   const [selectedPlace, setSelectedPlace] = useState(null);
@@ -162,7 +163,7 @@ export default function Home() {
 
   const checkIfFavorite = async (placeId) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/favorites/check/${placeId}`, {
+      const res = await fetch(`${API_URL}/api/favorites/check/${placeId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -183,7 +184,7 @@ export default function Home() {
         // Si estamos autenticados, guardar en MongoDB
         if (isFavorite) {
           // Eliminar favorito
-          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/favorites/${selectedPlace.id}`, {
+          const res = await fetch(`${API_URL}/api/favorites/${selectedPlace.id}`, {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },
           });
@@ -194,7 +195,7 @@ export default function Home() {
           }
         } else {
           // Agregar favorito
-          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/favorites/add`, {
+          const res = await fetch(`${API_URL}/api/favorites/add`, {
             method: "POST",
             headers: {
               Authorization: `Bearer ${token}`,

@@ -4,7 +4,7 @@ import { Search, MapPin, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { i18n } from "../i18n";
 
-const GOOGLE_PLACES_API_KEY = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
+import { GOOGLE_PLACES_API_KEY } from "../config/env.js";
 
 /**
  * Componente de búsqueda con Google Places Autocomplete

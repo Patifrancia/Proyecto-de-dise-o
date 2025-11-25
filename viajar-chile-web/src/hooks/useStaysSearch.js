@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { API_URL } from "../config/env.js";
 
 /**
  * Hook personalizado para búsqueda de estadías (hoteles, cabañas, hostales, airbnbs)
@@ -43,7 +44,7 @@ export function useStaysSearch(query, debounceMs = 300) {
         // Intentar primero con el endpoint específico de estadías
         // Si no existe, usar /api/search como fallback
         let response = await fetch(
-          `/api/stays/search?q=${encodeURIComponent(query)}`,
+          `${API_URL}/api/stays/search?q=${encodeURIComponent(query)}`,
           { signal }
         );
 
@@ -51,7 +52,7 @@ export function useStaysSearch(query, debounceMs = 300) {
         if (!response.ok) {
           // Intentar con el endpoint genérico como fallback
           response = await fetch(
-            `/api/search?q=${encodeURIComponent(query)}`,
+            `${API_URL}/api/search?q=${encodeURIComponent(query)}`,
             { signal }
           );
           

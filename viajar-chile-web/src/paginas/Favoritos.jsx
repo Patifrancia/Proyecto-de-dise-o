@@ -2,6 +2,7 @@ import { i18n } from "../i18n";
 import { useEffect, useState } from "react";
 import { MapPin, Heart, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../config/env.js";
 
 export default function Favoritos() {
   const user = JSON.parse(localStorage.getItem("user") || "null");
@@ -16,7 +17,7 @@ export default function Favoritos() {
       // Si autenticado, cargar de MongoDB
       const fetchFavorites = async () => {
         try {
-          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/favorites`, {
+          const res = await fetch(`${API_URL}/api/favorites`, {
             headers: { Authorization: `Bearer ${user.token}` },
           });
           if (res.ok) {
@@ -50,7 +51,7 @@ export default function Favoritos() {
     try {
       if (user?.token) {
         // Si autenticado, eliminar de MongoDB
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/favorites/${id}`, {
+        const res = await fetch(`${API_URL}/api/favorites/${id}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${user.token}` },
         });

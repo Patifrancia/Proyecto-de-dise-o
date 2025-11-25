@@ -88,25 +88,58 @@ app.use("/api/itinerary", itineraryRoutes); // Generación de itinerarios con IA
 app.use("/api/favorites", favoritesRoutes); // Gestión de lugares favoritos
 
 
-/* ========= Conexión a MongoDB y arranque ========= */
-async function startServer() {
+/* ========= Conexión a MongoDB ========= */
+let isConnected = false;
+
+async function connectDB() {
+  if (mongoose.connection.readyState === 1) {
+    isConnected = true;
+    return;
+  }
+
   try {
     mongoose.set("strictQuery", true);
-    await mongoose.connect(MONGODB_URI, { dbName: MONGODB_DB });
+    await mongoose.connect(MONGODB_URI, { 
+      dbName: MONGODB_DB,
+      // Opciones para serverless (Vercel)
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
+    isConnected = true;
     console.log("✅ MongoDB conectado:", mongoose.connection.host);
-
-    app.listen(PORT, () =>
-      console.log(`🚀 Servidor escuchando en http://localhost:${PORT}`)
-    );
   } catch (err) {
     console.error("❌ Error al conectar con MongoDB:", err?.message || err);
-    console.error("💡 Tips:");
-    console.error("   • Verifica usuario/contraseña del Database User en Atlas.");
-    console.error("   • Si tu contraseña tiene símbolos (@ / ? &), usa encodeURIComponent.");
-    console.error("   • Revisa Network Access en Atlas (0.0.0.0/0 o tu IP).");
-    console.error("   • Confirma que la URI tenga el formato: mongodb+srv://user:pass@host.mongodb.net/rutacl?...");
-    process.exit(1);
+    isConnected = false;
+    throw err;
   }
+}
+
+// Conectar a MongoDB antes de manejar requests
+connectDB().catch(err => {
+  console.error("Error inicial de conexión a MongoDB:", err);
+});
+
+/* ========= Middleware para asegurar conexión a MongoDB ========= */
+app.use(async (req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    try {
+      await connectDB();
+    } catch (err) {
+      return res.status(500).json({ 
+        error: "Error de conexión a la base de datos",
+        message: err.message 
+      });
+    }
+  }
+  next();
+});
+
+/* ========= Arranque del servidor (solo en desarrollo local) ========= */
+if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () =>
+    console.log(`🚀 Servidor escuchando en http://localhost:${PORT}`)
+  );
 }
 
 /* ========= Manejo de errores no capturados ========= */
@@ -115,7 +148,10 @@ process.on("unhandledRejection", (reason) => {
 });
 process.on("uncaughtException", (err) => {
   console.error("Uncaught Exception:", err);
-  process.exit(1);
+  if (process.env.NODE_ENV !== "production") {
+    process.exit(1);
+  }
 });
 
-startServer();
+// Exportar app para Vercel (serverless function)
+export default app;

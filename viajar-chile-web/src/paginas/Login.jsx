@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { i18n } from "../i18n";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+import { API_URL, GOOGLE_CLIENT_ID } from "../config/env.js";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "", remember: true });

@@ -3,8 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 import { i18n } from "../i18n";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+import { API_URL, GOOGLE_CLIENT_ID } from "../config/env.js";
 
 export default function Registro() {
   const [form, setForm] = useState({

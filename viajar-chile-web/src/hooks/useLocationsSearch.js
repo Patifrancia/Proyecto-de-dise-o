@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { API_URL } from "../config/env.js";
 
 /**
  * Hook personalizado para búsqueda de ciudades, localidades y pueblos de Chile
@@ -42,11 +43,8 @@ export function useLocationsSearch(query, debounceMs = 300) {
 
       try {
         // Usar directamente el endpoint de ciudades (el endpoint /api/locations/search no existe)
-        const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
-        const normalizedApiUrl = API_URL.replace(/\/+$/, ""); // Remover barras finales
-        
         const response = await fetch(
-          `${normalizedApiUrl}/api/ciudades?query=${encodeURIComponent(query)}`,
+          `${API_URL}/api/ciudades?query=${encodeURIComponent(query)}`,
           { signal }
         );
         

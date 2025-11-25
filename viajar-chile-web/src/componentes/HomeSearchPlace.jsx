@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { Search, MapPin, Loader2, X } from "lucide-react";
 import { i18n } from "../i18n";
 
-const GOOGLE_PLACES_API_KEY = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
+import { GOOGLE_PLACES_API_KEY } from "../config/env.js";
 
 export default function HomeSearchPlace({ onPlaceSelect }) {
   const [query, setQuery] = useState("");

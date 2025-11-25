@@ -17,12 +17,7 @@ import {
 import LocationsSearchBox from "../componentes/LocationsSearchBox";
 import { i18n } from "../i18n";
 
-// Normalizar API_URL para evitar dobles barras
-const getApiUrl = () => {
-  const url = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
-  return url.replace(/\/+$/, ""); // Remover barras finales
-};
-const API_URL = getApiUrl();
+import { API_URL } from "../config/env.js";
 
 export default function Planificar() {
   const navigate = useNavigate();
